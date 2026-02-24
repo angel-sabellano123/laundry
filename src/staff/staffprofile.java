@@ -8,8 +8,12 @@ package staff;
 import staff.staffdashboard;
 import config.UserSession;
 import config.config;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+import laundry.login;
 
 /**
  *
@@ -17,7 +21,7 @@ import javax.swing.JTextField;
  */
 public class staffprofile extends javax.swing.JFrame {
 
-    private final String  loggedInUsername; 
+    private String  loggedInUsername; 
     
     public staffprofile(String loggedUser) {
     if (loggedUser == null || loggedUser.isEmpty()) {
@@ -52,7 +56,7 @@ public class staffprofile extends javax.swing.JFrame {
             java.sql.Connection conn = con.connectDB();
 
             // Only get staff info
-            String sql = "SELECT full_name, username, contact, role FROM laundry WHERE username = ? AND role='staff'";
+            String sql = "SELECT full_name, username, contact, role FROM users WHERE username = ? AND role='staff'";
             java.sql.PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, loggedInUsername);
             java.sql.ResultSet rs = pst.executeQuery();
@@ -75,13 +79,23 @@ public class staffprofile extends javax.swing.JFrame {
     }
 
     public static void main(String args[]) {
-        String loggedUser = "staff123"; // replace with logged-in staff username from login
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new staffprofile(loggedUser).setVisible(true);
+    try {
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
             }
-        });
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
     }
+
+    // Launch the frame through PageLauncher so login is enforced
+    java.awt.EventQueue.invokeLater(() -> {
+        blocking.PageLauncher.launch(new staffprofile());
+    });
+}
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -95,7 +109,7 @@ public class staffprofile extends javax.swing.JFrame {
         jTextField4 = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
         full_name = new javax.swing.JTextField();
         username = new javax.swing.JTextField();
         role = new javax.swing.JTextField();
@@ -103,6 +117,7 @@ public class staffprofile extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -110,15 +125,8 @@ public class staffprofile extends javax.swing.JFrame {
 
         jPanel3.setBackground(new java.awt.Color(192, 237, 232));
 
-        jTextField1.setBackground(new java.awt.Color(192, 237, 232));
-        jTextField1.setFont(new java.awt.Font("Arial", 1, 36)); // NOI18N
-        jTextField1.setText("STAFF PROFILE");
-        jTextField1.setBorder(null);
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
-            }
-        });
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 36)); // NOI18N
+        jLabel2.setText("STAFF PROFILE");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -126,15 +134,15 @@ public class staffprofile extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(270, 270, 270))
+                .addComponent(jLabel2)
+                .addGap(239, 239, 239))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addGap(43, 43, 43)
+                .addComponent(jLabel2)
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         full_name.setBackground(new java.awt.Color(204, 204, 255));
@@ -183,6 +191,13 @@ public class staffprofile extends javax.swing.JFrame {
             }
         });
 
+        jButton3.setText("Update");
+        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton3MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -191,15 +206,16 @@ public class staffprofile extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(37, 37, 37)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(48, 48, 48)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(48, 48, 48)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(full_name, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(role, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jButton3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton2)
                         .addGap(39, 39, 39))))
@@ -224,11 +240,13 @@ public class staffprofile extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(role, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(role, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton3))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(89, 89, 89)
                                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -248,10 +266,6 @@ public class staffprofile extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
     private void usernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_usernameActionPerformed
@@ -262,44 +276,66 @@ public class staffprofile extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButton2MouseClicked
 
+    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
+                                             
+    String newFullName = full_name.getText().trim();
+    String newUsername = username.getText().trim();
+
+    if (newFullName.isEmpty() || newUsername.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Fields cannot be empty!");
+        return;
+    }
+
+    try (Connection conn = new config().connectDB();
+         PreparedStatement pst = conn.prepareStatement(
+             "UPDATE users SET full_name = ?, username = ? WHERE username = ? AND role = 'staff'")) {
+
+        pst.setString(1, newFullName);
+        pst.setString(2, newUsername);
+        pst.setString(3, loggedInUsername); // use the actual logged-in username
+
+        int rowsUpdated = pst.executeUpdate();
+
+        if (rowsUpdated > 0) {
+            JOptionPane.showMessageDialog(this, "Profile Updated Successfully!");
+
+            // Update the session and local variable
+            UserSession.getInstance().setUsername(newUsername);
+            loggedInUsername = newUsername; // refresh local variable
+
+            displayProfile(); // refresh profile immediately
+        } else {
+            JOptionPane.showMessageDialog(this, "Update Failed! Staff not found.");
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
+    }
+      
+
+    }//GEN-LAST:event_jButton3MouseClicked
+
     /**
      * @param args the command line arguments
      */
-    public static void main() {
-
-    /* Set the Nimbus look and feel */
-    try {
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-            if ("Nimbus".equals(info.getName())) {
-                javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                break;
-            }
-        }
-    } catch (Exception ex) {
-        java.util.logging.Logger.getLogger(staffprofile.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    }
-
-    /* Create and display the form */
-    String loggedUser = "staff123"; // replace with the actual logged-in username
-    java.awt.EventQueue.invokeLater(new Runnable() {
-        public void run() {
-            new staffprofile(loggedUser).setVisible(true); // ✅ pass username here
-        }
-    });
-}
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField full_name;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField role;
     private javax.swing.JTextField username;
     // End of variables declaration//GEN-END:variables
+
+    private void loadAdminData() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

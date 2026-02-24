@@ -26,6 +26,10 @@ public class config {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public static Connection getConnection() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     // Remove this method or update it to use connectDB
     // public static Connection connect() {
     //     throw new UnsupportedOperationException("Not supported yet.");
@@ -77,5 +81,59 @@ public class config {
         System.out.println("Error displaying data: " + e.getMessage());
     }
 }
+    public void displayData(String sql, javax.swing.JTable table, Object... values) {
+    try (Connection conn = connectDB();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        
+        // Set the parameters for the search
+        for (int i = 0; i < values.length; i++) {
+            pstmt.setObject(i + 1, values[i]);
+        }
+
+        try (ResultSet rs = pstmt.executeQuery()) {
+            // Automatically maps the filtered ResultSet to your JTable
+            table.setModel(DbUtils.resultSetToTableModel(rs));
+        }
+        
+    } catch (SQLException e) {
+        System.out.println("Error filtering data: " + e.getMessage());
+    }
+}
+
+public boolean updateRecord(String sql, Object... params) {
+    try (Connection conn = connectDB();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        for (int i = 0; i < params.length; i++) {
+            pst.setObject(i + 1, params[i]);
+        }
+
+        int affectedRows = pst.executeUpdate(); // returns number of rows updated
+        return affectedRows > 0; // true if at least 1 row updated
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+
+
+
+public boolean deleteRecord(String sql, int id) {
+    try (Connection conn = connectDB();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setInt(1, id); 
+        int affectedRows = pst.executeUpdate();
+
+        return affectedRows > 0; 
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false; 
+    }
+}
+
+
     
 }
