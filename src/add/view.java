@@ -16,6 +16,7 @@ public class view extends javax.swing.JFrame {
 
     private String caller;       
     private String loggedUser;   
+    private Object admin;
 
     
  
@@ -25,13 +26,13 @@ public view(String caller, String loggedUser) {
     this.caller = caller;
     this.loggedUser = loggedUser;
     loadCustomers();
-    setupTableListener();
+    
 }
 
     public view() {
         initComponents();
         loadCustomers();
-        setupTableListener();
+        
         
     }
 
@@ -311,25 +312,25 @@ public view(String caller, String loggedUser) {
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
 
-    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-config cfg = new config();
+    int selectedRow = jTable1.getSelectedRow();
 
-try {
-    for (int row = 0; row < model.getRowCount(); row++) {
-        int customerId = (int) model.getValueAt(row, 0);
-        String fullName = model.getValueAt(row, 1).toString();
-        String contact = model.getValueAt(row, 2).toString();
-        String address = model.getValueAt(row, 3).toString();
-
-        String sql = "UPDATE customers SET full_name = ?, contact_number = ?, address = ? WHERE c_id = ?";
-        cfg.updateRecord(sql, fullName, contact, address, customerId);
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a customer to edit.");
+        return;
     }
 
-    JOptionPane.showMessageDialog(this, "Customers updated successfully!");
-} catch (Exception e) {
-    JOptionPane.showMessageDialog(this, "Error updating customers: " + e.getMessage());
-}
+    // Get data from selected row
+    int id = (int) jTable1.getValueAt(selectedRow, 0);
+    String fullName = jTable1.getValueAt(selectedRow, 1).toString();
+    String contact = jTable1.getValueAt(selectedRow, 2).toString();
+    String address = jTable1.getValueAt(selectedRow, 3).toString();
 
+    // Open Update Form and pass data
+    admin.updatecustomer editForm =
+            new admin.updatecustomer(id, fullName, contact, address, caller, loggedUser);
+
+    editForm.setVisible(true);
+    this.dispose();
 
     }//GEN-LAST:event_jButton2MouseClicked
 

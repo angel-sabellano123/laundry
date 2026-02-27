@@ -71,12 +71,11 @@ private void loadUserTable() {
 
         // Class-level model with only ID column non-editable
         model = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // column 0 = id → non-editable
-                return column != 0;
-            }
-        };
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false; // ALL columns not editable
+    }
+};
 
         model.addColumn("ID");          // column 0
         model.addColumn("Full Name");   // column 1
@@ -497,30 +496,25 @@ private void loadUserTable() {
     }//GEN-LAST:event_jButton3MouseClicked
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+ 
+    int selectedRow = jTable1.getSelectedRow();
 
-    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-    config cfg = new config();
-
-    try {
-        for (int row = 0; row < model.getRowCount(); row++) {
-            String id = model.getValueAt(row, 0).toString(); // user_id
-            String fullName = model.getValueAt(row, 1).toString();
-            String username = model.getValueAt(row, 2).toString();
-            String contact = model.getValueAt(row, 3).toString();
-            String role = model.getValueAt(row, 4).toString();
-
-            String sql = "UPDATE users SET full_name=?, username=?, contact=?, role=? WHERE user_id=?";
-            // Bind params correctly
-            cfg.updateRecord(sql, fullName, username, contact, role, Integer.parseInt(id));
-        }
-
-        JOptionPane.showMessageDialog(this, "Users updated successfully!");
-        loadUserTable(); // refresh table
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error updating users: " + e.getMessage());
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a user to edit.");
+        return;
     }
 
+    // Kunin data sa selected row
+    String id = jTable1.getValueAt(selectedRow, 0).toString();
+    String fullName = jTable1.getValueAt(selectedRow, 1).toString();
+    String username = jTable1.getValueAt(selectedRow, 2).toString();
+    String contact = jTable1.getValueAt(selectedRow, 3).toString();
+    String role = jTable1.getValueAt(selectedRow, 4).toString();
+
+    // Open Edit Form and pass data
+    edituser editForm = new edituser(id, fullName, username, contact, role);
+    editForm.setVisible(true);
+    this.dispose();
 
     }//GEN-LAST:event_jButton2MouseClicked
 
