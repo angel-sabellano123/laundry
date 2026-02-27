@@ -135,5 +135,27 @@ public boolean deleteRecord(String sql, int id) {
 }
 
 
+
+    public boolean insertRecord(String sql, Object... params) {
+    try {
+        Connection conn = connectDB();
+        PreparedStatement pst = conn.prepareStatement(sql);
+
+        for (int i = 0; i < params.length; i++) {
+            pst.setObject(i + 1, params[i]);
+        }
+
+        int rows = pst.executeUpdate();
+
+        pst.close();
+        conn.close();
+
+        return rows > 0;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
     
 }

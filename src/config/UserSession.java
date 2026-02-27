@@ -7,6 +7,7 @@ public class UserSession {
     private String username;
     private String role;
     private String fullName;
+    private int userId;
 
     // Private constructor ensures singleton pattern
     private UserSession() { }
@@ -56,4 +57,10 @@ public class UserSession {
     public void clearSession() {
         instance = null;
     }
+
+   public int getUserId() {
+        return this.userId;
+    }
+   
+   
 }

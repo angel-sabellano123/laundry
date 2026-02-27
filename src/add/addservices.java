@@ -5,6 +5,7 @@
  */
 package add;
 
+import admin.admindashboard;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,8 +22,63 @@ public class addservices extends javax.swing.JFrame {
      */
     public addservices() {
         initComponents();
+        populateServicesCombo(); 
+        
+        jComboBox1.addActionListener(e -> setPriceAutomatically());
     }
 
+    
+     private void populateServicesCombo() {
+
+    jComboBox1.removeAllItems();
+
+    jComboBox1.addItem("Wash Only");
+    jComboBox1.addItem("Dry Only");
+    jComboBox1.addItem("Ironing Only");
+    jComboBox1.addItem("Wash & Iron");
+    jComboBox1.addItem("Wash, Dry & Fold");
+    jComboBox1.addItem("Express Wash");
+    jComboBox1.addItem("Express Dry");
+    jComboBox1.addItem("Premium Full Service");
+
+    // gawin editable ang price box
+    jComboBox2.setEditable(true);
+} 
+     private void setPriceAutomatically() {
+
+    String service = (String) jComboBox1.getSelectedItem();
+
+    if(service == null) return;
+
+    switch(service) {
+        case "Wash Only":
+            jComboBox2.setSelectedItem("100");
+            break;
+        case "Dry Only":
+            jComboBox2.setSelectedItem("90");
+            break;
+        case "Ironing Only":
+            jComboBox2.setSelectedItem("100");
+            break;
+        case "Wash & Iron":
+            jComboBox2.setSelectedItem("150");
+            break;
+        case "Wash, Dry & Fold":
+            jComboBox2.setSelectedItem("250");
+            break;
+        case "Express Wash":
+            jComboBox2.setSelectedItem("100");
+            break;
+        case "Express Dry":
+            jComboBox2.setSelectedItem("60");
+            break;
+        case "Premium Full Service":
+            jComboBox2.setSelectedItem("400");
+            break;
+    }
+}
+     
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -37,15 +93,11 @@ public class addservices extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        service_name = new javax.swing.JTextField();
-        laundry_weight = new javax.swing.JTextField();
-        note = new javax.swing.JTextField();
-        price_per_kg = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jComboBox2 = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -56,7 +108,7 @@ public class addservices extends javax.swing.JFrame {
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/laundryyy-removebg-preview__1_-removebg-preview.png"))); // NOI18N
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 36)); // NOI18N
-        jLabel2.setText("ADD SERVICES");
+        jLabel2.setText(" SERVICES");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -67,7 +119,7 @@ public class addservices extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addGap(226, 226, 226)
                 .addComponent(jLabel2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(343, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -85,36 +137,11 @@ public class addservices extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel3.setText("Service Name :");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel4.setText("Laundry Weight :");
-
-        jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel5.setText("Note :");
-
         jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel6.setText("Price Per Kg :");
 
-        service_name.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                service_nameActionPerformed(evt);
-            }
-        });
-
-        laundry_weight.setText(" ");
-        laundry_weight.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                laundry_weightActionPerformed(evt);
-            }
-        });
-
-        note.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                noteActionPerformed(evt);
-            }
-        });
-
         jButton1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jButton1.setText("ADD");
+        jButton1.setText("Update");
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton1MouseClicked(evt);
@@ -128,63 +155,49 @@ public class addservices extends javax.swing.JFrame {
             }
         });
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(185, 185, 185)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel4)
-                .addGap(218, 218, 218))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(184, 184, 184)
-                .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel5)
-                .addGap(252, 252, 252))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(175, 175, 175)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(price_per_kg, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(service_name, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 215, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(laundry_weight, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(note, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(210, 210, 210))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(386, 386, 386)
-                .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(386, 386, 386)
+                        .addComponent(jButton1)
+                        .addGap(0, 371, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(109, 109, 109)
+                .addComponent(jLabel3)
+                .addGap(27, 27, 27)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel6)
+                .addGap(37, 37, 37)
+                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(133, 133, 133))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(43, 43, 43)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(laundry_weight, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(service_name, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(price_per_kg, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(note, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(52, 52, 52)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel3)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6)))
+                .addGap(126, 126, 126)
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2)
@@ -208,61 +221,51 @@ public class addservices extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void noteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noteActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_noteActionPerformed
-
-    private void laundry_weightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_laundry_weightActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_laundry_weightActionPerformed
-
-    private void service_nameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_service_nameActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_service_nameActionPerformed
-
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-    
-    String serviceName = service_name.getText().trim();
-    String weightStr = laundry_weight.getText().trim();
-    String noteText = note.getText().trim();
-    String priceStr = price_per_kg.getText().trim();
+   
+    String serviceName = (String) jComboBox1.getSelectedItem();
+    String priceText = jComboBox2.getSelectedItem().toString();
 
-    if(serviceName.isEmpty() || weightStr.isEmpty() || priceStr.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill all required fields!");
+    if(serviceName == null || priceText.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill all fields!");
         return;
     }
 
-    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db")) {
+    try {
+        double pricePerKg = Double.parseDouble(priceText);
 
-        String sql = "INSERT INTO services (service_name, laundry_weight, note, price_per_kg) VALUES (?, ?, ?, ?)";
+        Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db");
+
+        String sql = "UPDATE services SET price_per_kg = ? WHERE service_name = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
 
-        ps.setString(1, serviceName);
-        ps.setDouble(2, Double.parseDouble(weightStr));
-        ps.setString(3, noteText);
-        ps.setDouble(4, Double.parseDouble(priceStr));
+        ps.setDouble(1, pricePerKg);
+        ps.setString(2, serviceName);
 
-        ps.executeUpdate();
+        int rows = ps.executeUpdate();
 
-        JOptionPane.showMessageDialog(this, "Service added successfully!");
+        if(rows > 0) {
+            JOptionPane.showMessageDialog(this, "Service updated successfully!");
 
-        double price = Double.parseDouble(priceStr);
+            // 👉 Redirect to Admin Dashboard
+            admindashboard dashboard = new admindashboard();
+            dashboard.setVisible(true);
+            this.dispose();
 
-        // OPEN ADD TRANSACTION
-        addtransaction at = new addtransaction();
-        at.setVisible(true);
-        this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Service not found in database!");
+        }
+
+        conn.close();
 
     } catch(Exception e) {
         JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
     }
-
-        
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
         String loggedInUsername = null;
-        addcustomer lf = new addcustomer();
+        admindashboard lf = new admindashboard();
         lf.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2MouseClicked
@@ -291,17 +294,15 @@ public class addservices extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField laundry_weight;
-    private javax.swing.JTextField note;
-    private javax.swing.JTextField price_per_kg;
-    private javax.swing.JTextField service_name;
     // End of variables declaration//GEN-END:variables
+
+   
 }

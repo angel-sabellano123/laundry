@@ -7,6 +7,8 @@ package admin;
 
 
 import add.addcustomer;
+import add.addservices;
+import add.adduser;
 import add.view;
 import add.viewtransactions;
 import static com.sun.jndi.toolkit.dir.DirSearch.search;
@@ -186,7 +188,7 @@ private void loadUserTable() {
 
         jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("ADD CUSTOMER");
+        jLabel3.setText("Services");
         jLabel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -430,13 +432,13 @@ private void loadUserTable() {
     }//GEN-LAST:event_jTextField3KeyTyped
 
     private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
-        addcustomer lf = new addcustomer();
+        addservices lf = new addservices();
         lf.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jLabel3MouseClicked
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        addcustomer lf = new addcustomer();
+        adduser lf = new adduser();
         lf.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton1MouseClicked

@@ -28,101 +28,66 @@ public class viewtransactions extends javax.swing.JFrame {
     /**
      * Creates new form viewtransactions
      */
-    public viewtransactions(String caller, String loggedUser) {
-    this.caller = caller;
-    this.loggedUser = loggedUser;
-    initComponents();
+     public viewtransactions(String caller, String loggedUser) {
+        this.caller = caller;
+        this.loggedUser = loggedUser;
+        initComponents();
 
-    // Set JTable columns to show all fields
-    jTable1.setModel(new javax.swing.table.DefaultTableModel(
-    new Object [][] {},
-    new String [] {
-        "Transaction ID", "Customer ID", "User ID", "Service ID", "Notes",
-        "Total Amount", "Payment Method", "Payment Status", "Laundry Status", "Date Created"
-    }
-    ) {
-    @Override
-    public boolean isCellEditable(int row, int column) {
-        // Only editable: Notes, Total Amount, Payment Method, Payment Status, Laundry Status
-        return column >= 4 && column <= 8;
-    }
-    });
-
-    // 2️⃣ TableModelListener for auto-update
-    jTable1.getModel().addTableModelListener(e -> {
-        int row = e.getFirstRow();
-        int column = e.getColumn();
-        if(row < 0 || column < 0) return;
-
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        int l_id = Integer.parseInt(model.getValueAt(row, 0).toString());   // Transaction ID
-        int c_id = Integer.parseInt(model.getValueAt(row, 1).toString());   // Customer ID
-        Object newValue = model.getValueAt(row, column);
-
-        String columnName = model.getColumnName(column);
-        String dbColumn = "";
-
-        switch(columnName){
-            case "Service": dbColumn = "s_id"; break; // optional: allow changing service
-            case "Total Amount": dbColumn = "total_amount"; break;
-            case "Notes": dbColumn = "note"; break;
-            case "Payment Method": dbColumn = "payment_method"; break;
-            case "Payment Status": dbColumn = "payment_status"; break;
-            case "Laundry Status": dbColumn = "laundry_status"; break;
-        }
-
-        if(!dbColumn.isEmpty()){
-            String sql = "UPDATE laundry SET " + dbColumn + " = ? WHERE l_id = ? AND c_id = ?";
-            config cfg = new config();
-            boolean success = cfg.updateRecord(sql, newValue, l_id, c_id);
-            if(!success){
-                JOptionPane.showMessageDialog(this, "Failed to update " + dbColumn);
+        // Set JTable with proper columns
+        jTable1.setModel(new DefaultTableModel(
+            new Object[][] {},
+            new String[] {
+                "Transaction ID", "Customer ID", "Staff/User Name",
+                "Service Name", "Total Amount", "Date Created"
             }
-        }
-    });
-
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        });
+  
     // 3️⃣ Load all transactions
     loadTransactions();
 }
    
-   private void loadTransactions() {
-    Connection conn = config.connectDB();
-    if (conn == null) return;
-
-    // Select all columns from laundry table
-    String sql = "SELECT l_id, c_id, u_id, s_id, note, total_amount, " +
-                 "payment_method, payment_status, laundry_status, date_created " +
-                 "FROM laundry";
-
-    try {
-        PreparedStatement pst = conn.prepareStatement(sql);
-        ResultSet rs = pst.executeQuery();
-
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        model.setRowCount(0); // Clear table first
-
-        while(rs.next()) {
-            Object[] row = new Object[] {
-                rs.getInt("l_id"),                     // Transaction ID
-                rs.getInt("c_id"),                     // Customer ID
-                rs.getInt("u_id"),                     // User ID
-                rs.getInt("s_id"),                     // Service ID
-                rs.getString("note"),                  // Notes
-                rs.getDouble("total_amount"),          // Total Amount
-                rs.getString("payment_method"),        // Payment Method
-                rs.getString("payment_status"),        // Payment Status
-                rs.getString("laundry_status"),        // Laundry Status
-                new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                    .format(new java.util.Date(rs.getLong("date_created")*1000)) // Convert timestamp to readable
-            };
-            model.addRow(row);
+  private void loadTransactions() {
+        Connection conn = config.connectDB();
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Database connection failed!");
+            return;
         }
 
-    } catch (SQLException ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error loading transactions: " + ex.getMessage());
+        String sql = "SELECT l.l_id, l.c_id, COALESCE(u.username, 'Unknown') AS user_name, " +
+             "s.service_name, l.total_amount, l.date_created " +
+             "FROM laundry l " +
+             "LEFT JOIN services s ON l.s_id = s.s_id " +
+             "LEFT JOIN users u ON l.u_id = u.user_id";
+
+        try {
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = new Object[] {
+                    rs.getInt("l_id"),
+                    rs.getInt("c_id"),
+                    rs.getString("user_name"),
+                    rs.getString("service_name"),
+                    rs.getDouble("total_amount"),
+                    rs.getString("date_created")
+                };
+                model.addRow(row);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading transactions: " + ex.getMessage());
+        }
     }
-}
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -264,63 +229,55 @@ public class viewtransactions extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyTyped
-                                   
-    String searchText = jTextField2.getText();
+      String searchText = jTextField2.getText();
 
-    Connection conn = config.connectDB();
-    if (conn == null) return;
+        Connection conn = config.connectDB();
+        if (conn == null) return;
 
-    // Search all relevant columns
-    String sql = "SELECT l.l_id, l.c_id, l.u_id, l.s_id, l.note, l.total_amount, " +
-                 "l.payment_method, l.payment_status, l.laundry_status, l.date_created " +
-                 "FROM laundry l " +
-                 "WHERE l.l_id LIKE ? OR l.c_id LIKE ? OR l.u_id LIKE ? " +
-                 "OR l.s_id LIKE ? OR l.note LIKE ? OR l.total_amount LIKE ? " +
-                 "OR l.payment_method LIKE ? OR l.payment_status LIKE ? OR l.laundry_status LIKE ?";
+        String sql = "SELECT l.l_id, l.c_id, u.username AS user_name, " +
+                     "s.service_name, l.total_amount, l.date_created " +
+                     "FROM laundry l " +
+                     "LEFT JOIN services s ON l.s_id = s.s_id " +
+                     "LEFT JOIN users u ON l.u_id = u.user_id " +
+                     "WHERE l.l_id LIKE ? OR l.c_id LIKE ? OR u.username LIKE ? " +
+                     "OR s.service_name LIKE ? OR l.total_amount LIKE ? OR l.date_created LIKE ?";
 
-    try {
-        PreparedStatement pst = conn.prepareStatement(sql);
+        try {
+            PreparedStatement pst = conn.prepareStatement(sql);
 
-        // Bind searchText to all placeholders
-        for (int i = 1; i <= 9; i++) {
-            pst.setString(i, "%" + searchText + "%");
+            for (int i = 1; i <= 6; i++) {
+                pst.setString(i, "%" + searchText + "%");
+            }
+
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = new Object[] {
+                    rs.getInt("l_id"),
+                    rs.getInt("c_id"),
+                    rs.getString("user_name"),
+                    rs.getString("service_name"),
+                    rs.getDouble("total_amount"),
+                    rs.getString("date_created")
+                };
+                model.addRow(row);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error searching transactions: " + ex.getMessage());
         }
-
-        ResultSet rs = pst.executeQuery();
-
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        model.setRowCount(0);
-
-        while(rs.next()) {
-            Object[] row = new Object[] {
-                rs.getInt("l_id"),
-                rs.getInt("c_id"),
-                rs.getInt("u_id"),
-                rs.getInt("s_id"),
-                rs.getString("note"),
-                rs.getDouble("total_amount"),
-                rs.getString("payment_method"),
-                rs.getString("payment_status"),
-                rs.getString("laundry_status"),
-                new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                    .format(new java.util.Date(rs.getLong("date_created")*1000))
-            };
-            model.addRow(row);
-        }
-
-    } catch (SQLException ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error searching transactions: " + ex.getMessage());
-    }
-
     }//GEN-LAST:event_jTextField2KeyTyped
 
     private void jButton5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseClicked
 
-        if ("admin".equals(this.caller)) {
-        new admindashboard(loggedUser).setVisible(true);
-        } else if ("staff".equals(this.caller)) {
-         new staffdashboard(loggedUser).setVisible(true);
+         if ("admin".equals(caller)) {
+            new admindashboard(loggedUser).setVisible(true);
+        } else if ("staff".equals(caller)) {
+            new staffdashboard(loggedUser).setVisible(true);
         }
         this.dispose();
 
@@ -347,8 +304,8 @@ public class viewtransactions extends javax.swing.JFrame {
 
     // Launch the frame through PageLauncher so login is enforced
     java.awt.EventQueue.invokeLater(() -> {
-        blocking.PageLauncher.launch(new addservices());
-    });
+    blocking.PageLauncher.launch(new viewtransactions("admin", "admin"));
+});
 }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
