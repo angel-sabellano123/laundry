@@ -9,6 +9,8 @@ import admin.admindashboard;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 /**
@@ -21,63 +23,83 @@ public class addservices extends javax.swing.JFrame {
      * Creates new form addservices
      */
     public addservices() {
-        initComponents();
-        populateServicesCombo(); 
+         initComponents(); // siguraduhing ito ang una
+         refreshServices(); // automatic load ng services mula sa database
+         setupServiceSelection();
         
-        jComboBox1.addActionListener(e -> setPriceAutomatically());
+         if(jList1.getModel().getSize() > 0) {
+        jList1.setSelectedIndex(0); 
     }
-
+       
+    } 
     
-     private void populateServicesCombo() {
+    private void refreshServices() {
+    try {
+        Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db");
 
-    jComboBox1.removeAllItems();
+        String sql = "SELECT service_name, price_per_kg FROM services";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
 
-    jComboBox1.addItem("Wash Only");
-    jComboBox1.addItem("Dry Only");
-    jComboBox1.addItem("Ironing Only");
-    jComboBox1.addItem("Wash & Iron");
-    jComboBox1.addItem("Wash, Dry & Fold");
-    jComboBox1.addItem("Express Wash");
-    jComboBox1.addItem("Express Dry");
-    jComboBox1.addItem("Premium Full Service");
+        DefaultListModel<String> serviceModel = new DefaultListModel<>();
+        DefaultListModel<String> priceModel = new DefaultListModel<>();
 
-    // gawin editable ang price box
-    jComboBox2.setEditable(true);
-} 
-     private void setPriceAutomatically() {
+        while(rs.next()) {
+            serviceModel.addElement(rs.getString("service_name"));
+            priceModel.addElement(String.valueOf(rs.getDouble("price_per_kg")));
+        }
 
-    String service = (String) jComboBox1.getSelectedItem();
+        jList1.setModel(serviceModel);
+        jList2.setModel(priceModel);
 
-    if(service == null) return;
+        if(serviceModel.getSize() > 0) {
+            jList1.setSelectedIndex(0);
+        }
 
-    switch(service) {
-        case "Wash Only":
-            jComboBox2.setSelectedItem("100");
-            break;
-        case "Dry Only":
-            jComboBox2.setSelectedItem("90");
-            break;
-        case "Ironing Only":
-            jComboBox2.setSelectedItem("100");
-            break;
-        case "Wash & Iron":
-            jComboBox2.setSelectedItem("150");
-            break;
-        case "Wash, Dry & Fold":
-            jComboBox2.setSelectedItem("250");
-            break;
-        case "Express Wash":
-            jComboBox2.setSelectedItem("100");
-            break;
-        case "Express Dry":
-            jComboBox2.setSelectedItem("60");
-            break;
-        case "Premium Full Service":
-            jComboBox2.setSelectedItem("400");
-            break;
+        conn.close();
+    } catch(Exception e) {
+        JOptionPane.showMessageDialog(this, "wew" + e.getMessage());
     }
 }
-     
+
+    private void populateServicesList() {
+    DefaultListModel<String> model = new DefaultListModel<>();
+    model.addElement("Wash Only");
+    model.addElement("Dry Only");
+    model.addElement("Ironing Only");
+    model.addElement("Wash & Iron");
+    model.addElement("Wash, Dry & Fold");
+    model.addElement("Express Wash");
+    model.addElement("Express Dry");
+    model.addElement("Premium Full Service");
+    jList1.setModel(model);
+}
+    
+    private void setupServiceSelection() {
+    jList1.addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            String selectedService = jList1.getSelectedValue();
+            DefaultListModel<String> priceModel = new DefaultListModel<>();
+
+            String price = "";
+            switch(selectedService) {
+                case "Wash Only": price = "100"; break;
+                case "Dry Only": price = "90"; break;
+                case "Ironing Only": price = "100"; break;
+                case "Wash & Iron": price = "150"; break;
+                case "Wash, Dry & Fold": price = "250"; break;
+                case "Express Wash": price = "100"; break;
+                case "Express Dry": price = "60"; break;
+                case "Premium Full Service": price = "400"; break;
+            }
+
+            priceModel.addElement(price);
+            jList2.setModel(priceModel);
+        }
+    });
+}
+
+   
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -96,8 +118,13 @@ public class addservices extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jList2 = new javax.swing.JList<>();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -155,9 +182,41 @@ public class addservices extends javax.swing.JFrame {
             }
         });
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(jList1);
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jList2.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(jList2);
+
+        jButton3.setBackground(new java.awt.Color(204, 204, 255));
+        jButton3.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jButton3.setText("ADD");
+        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton3MouseClicked(evt);
+            }
+        });
+
+        jButton4.setBackground(new java.awt.Color(204, 204, 255));
+        jButton4.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jButton4.setText("UPDATE");
+
+        jButton5.setBackground(new java.awt.Color(204, 204, 255));
+        jButton5.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jButton5.setText("REFRESH");
+        jButton5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton5MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -165,43 +224,55 @@ public class addservices extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(109, 109, 109)
+                .addComponent(jLabel3)
+                .addGap(34, 34, 34)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel6)
+                .addGap(35, 35, 35)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(225, 225, 225))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2))
+                        .addComponent(jButton3)
+                        .addGap(31, 31, 31)
+                        .addComponent(jButton4)
+                        .addGap(28, 28, 28)
+                        .addComponent(jButton5))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(386, 386, 386)
                         .addComponent(jButton1)
-                        .addGap(0, 371, Short.MAX_VALUE)))
-                .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(109, 109, 109)
-                .addComponent(jLabel3)
-                .addGap(27, 27, 27)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel6)
-                .addGap(37, 37, 37)
-                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(133, 133, 133))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2)))
+                .addGap(26, 26, 26))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton3)
+                    .addComponent(jButton4)
+                    .addComponent(jButton5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel3)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel6)))
-                .addGap(126, 126, 126)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
-                .addGap(31, 31, 31))
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel6)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(jButton1)
+                        .addGap(60, 60, 60))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)
+                        .addGap(40, 40, 40))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -212,9 +283,7 @@ public class addservices extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -222,20 +291,26 @@ public class addservices extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-   
-    String serviceName = (String) jComboBox1.getSelectedItem();
-    String priceText = jComboBox2.getSelectedItem().toString();
+
+    String serviceName = jList1.getSelectedValue();
+    String priceText = jList2.getModel().getSize() > 0 
+                        ? jList2.getModel().getElementAt(0) 
+                        : "";
+
 
     if(serviceName == null || priceText.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill all fields!");
+        JOptionPane.showMessageDialog(this, "Please select a service!");
         return;
     }
 
     try {
+      
         double pricePerKg = Double.parseDouble(priceText);
 
+        
         Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db");
 
+      
         String sql = "UPDATE services SET price_per_kg = ? WHERE service_name = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -247,7 +322,7 @@ public class addservices extends javax.swing.JFrame {
         if(rows > 0) {
             JOptionPane.showMessageDialog(this, "Service updated successfully!");
 
-            // 👉 Redirect to Admin Dashboard
+   
             admindashboard dashboard = new admindashboard();
             dashboard.setVisible(true);
             this.dispose();
@@ -270,6 +345,20 @@ public class addservices extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButton2MouseClicked
 
+    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
+        String loggedInUsername = null;
+        add lf = new add();
+        lf.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton3MouseClicked
+
+    private void jButton5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseClicked
+         refreshServices();
+         JOptionPane.showMessageDialog(this, "Services refreshed successfully!");
+    }//GEN-LAST:event_jButton5MouseClicked
+
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -294,14 +383,19 @@ public class addservices extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JList<String> jList2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 
    
