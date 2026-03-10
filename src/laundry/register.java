@@ -6,6 +6,8 @@
 package laundry;
 
 import config.config;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import javax.swing.JOptionPane;
 
 /**
@@ -125,6 +127,7 @@ public class register extends javax.swing.JFrame {
             }
         });
 
+        jButton3.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton3.setText("←");
         jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -136,19 +139,19 @@ public class register extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Arial", 1, 36)); // NOI18N
         jLabel2.setText("REGISTER FORM");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel3.setText("Full Name :");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel4.setText("Username :");
 
-        jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel5.setText("Contact :");
 
-        jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel6.setText("Password :");
 
-        jLabel7.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel7.setText("Confirm Password :");
 
         javax.swing.GroupLayout full_nameLayout = new javax.swing.GroupLayout(full_name);
@@ -176,17 +179,17 @@ public class register extends javax.swing.JFrame {
                                 .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
-                        .addComponent(jButton3)
-                        .addGap(37, 37, 37))
-                    .addGroup(full_nameLayout.createSequentialGroup()
-                        .addGap(306, 306, 306)
-                        .addComponent(jButton1)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(37, 189, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, full_nameLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel2)
-                        .addGap(193, 193, 193))))
+                        .addGap(193, 193, 193))
+                    .addGroup(full_nameLayout.createSequentialGroup()
+                        .addGap(306, 306, 306)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(38, 38, 38))))
         );
         full_nameLayout.setVerticalGroup(
             full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -195,32 +198,31 @@ public class register extends javax.swing.JFrame {
                 .addGap(29, 29, 29)
                 .addComponent(jLabel2)
                 .addGap(58, 58, 58)
-                .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton3)
-                    .addGroup(full_nameLayout.createSequentialGroup()
-                        .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(fullname, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))
-                        .addGap(18, 18, 18)
-                        .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4))
-                        .addGap(28, 28, 28)
-                        .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5))
-                        .addGap(18, 18, 18)
-                        .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6))
-                        .addGap(18, 18, 18)
-                        .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel7))
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fullname, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGap(18, 18, 18)
+                .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addGap(28, 28, 28)
+                .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addGap(18, 18, 18)
+                .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addGap(18, 18, 18)
+                .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addGap(18, 18, 18)
+                .addGroup(full_nameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -260,80 +262,79 @@ public class register extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-                                         
-    // Kunin ang values mula sa form
+
+    config conf = new config();
+
+    // Get values from fields
     String fullNameText = fullname.getText().trim();
     String usernameText = username.getText().trim();
     String contactText = contact.getText().trim();
     String passwordText = password.getText();
     String confirmPasswordText = jPasswordField2.getText();
 
-    // Basic validation
-    if (fullNameText.isEmpty() || usernameText.isEmpty() || contactText.isEmpty() 
-        || passwordText.isEmpty() || confirmPasswordText.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill all fields!");
+    // Check if fields are empty
+    if (fullNameText.isEmpty() || usernameText.isEmpty() || contactText.isEmpty()
+            || passwordText.isEmpty() || confirmPasswordText.isEmpty()) {
+
+        JOptionPane.showMessageDialog(null, "Please fill all fields!");
         return;
     }
 
+    // Full name validation (8–16 characters)
+    if (fullNameText.length() < 8 || fullNameText.length() > 16) {
+        JOptionPane.showMessageDialog(null, "Full name must be 8 to 16 characters!");
+        return;
+    }
+
+    // Contact validation (exactly 11 digits)
+    if (!contactText.matches("\\d{11}")) {
+        JOptionPane.showMessageDialog(null, "Contact number must be exactly 11 digits!");
+        return;
+    }
+
+    // Password validation (8–16 characters)
+    if (passwordText.length() < 8 || passwordText.length() > 16) {
+        JOptionPane.showMessageDialog(null, "Password must be 8 to 16 characters!");
+        return;
+    }
+
+    // Confirm password match
     if (!passwordText.equals(confirmPasswordText)) {
-        JOptionPane.showMessageDialog(this, "Passwords do not match!");
+        JOptionPane.showMessageDialog(null, "Passwords do not match!");
         return;
     }
 
-    if (!contactText.matches("\\d+")) {
-        JOptionPane.showMessageDialog(this, "Contact must be numbers only!");
+    // Check if username already exists
+    if (conf.duplicateCheck(usernameText)) {
+        JOptionPane.showMessageDialog(null, "Username already exists!");
         return;
     }
 
-    config con = new config();
-    try {
-        java.sql.Connection conn = con.connectDB();
+   // Insert user into database
+String sql = "INSERT INTO users (full_name, username, contact, password, role) VALUES (?, ?, ?, ?, ?)";
 
-        // Check if username or contact already exists
-        String checkSql = "SELECT * FROM users WHERE username = ? OR contact = ?";
-        java.sql.PreparedStatement pst = conn.prepareStatement(checkSql);
-        pst.setString(1, usernameText);
-        pst.setString(2, contactText);
-        java.sql.ResultSet rs = pst.executeQuery();
+try {
+    Connection conn = config.connectDB();
+    PreparedStatement pst = conn.prepareStatement(sql);
 
-        if (rs.next()) {
-            JOptionPane.showMessageDialog(this, "Username or contact already exists!");
-            rs.close();
-            pst.close();
-            conn.close();
-            return;
-        }
-        rs.close();
-        pst.close();
+    pst.setString(1, fullNameText);
+    pst.setString(2, usernameText);
+    pst.setString(3, contactText);
+    pst.setString(4, passwordText);
+    pst.setString(5, "staff"); // default role
 
-        // Lahat ng bagong user ay staff
-        String role = "staff";
+    pst.executeUpdate();
 
-        // Insert user sa database
-        String insertSql = "INSERT INTO users (full_name, username, contact, password, role) VALUES (?, ?, ?, ?, ?)";
-        java.sql.PreparedStatement pst3 = conn.prepareStatement(insertSql);
-        pst3.setString(1, fullNameText);
-        pst3.setString(2, usernameText);
-        pst3.setString(3, contactText);
-        pst3.setString(4, passwordText); // optional: pwede i-hash
-        pst3.setString(5, role);
-        pst3.executeUpdate();
+    JOptionPane.showMessageDialog(null, "Registration Successful!");
 
-        pst3.close();
-        conn.close();
+    // Go to login after register
+    login lf = new login();
+    lf.setVisible(true);
+    this.dispose();
 
-        JOptionPane.showMessageDialog(this, "Registration successful! Your role: " + role);
-
-        // Open login form
-        login lf = new login();
-        lf.setVisible(true);
-        this.dispose();
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
-    }
-
-
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+}
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField7ActionPerformed

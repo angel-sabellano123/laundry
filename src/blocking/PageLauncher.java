@@ -20,4 +20,21 @@ public class PageLauncher {
             frame.setVisible(true);
         }
     }
+
+   private static String caller;
+private static String loggedUser;
+
+public static String getCaller() {
+    return caller;
 }
+
+public static String getLoggedUser() {
+    return loggedUser;
+}
+
+public static void setSession(String c, String user) {
+    caller = c;
+    loggedUser = user;
+}}
+
+

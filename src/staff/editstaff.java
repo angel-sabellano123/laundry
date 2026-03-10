@@ -6,8 +6,14 @@
 package staff;
 
 import config.config;
+import java.awt.Image;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
@@ -33,11 +39,11 @@ public class editstaff extends javax.swing.JFrame {
     role.setText(roleValue);
     username.setEditable(true);
     contact.setEditable(true);
-    this.oldUsername = usernameValue;
+    this.oldUsername = usernameValue; 
+    loadProfileImage(usernameValue);
 }
 
-    
-   
+    private byte[] profileImageBytes; // store the profile image for saving
     
 
     /**
@@ -62,6 +68,8 @@ public class editstaff extends javax.swing.JFrame {
         role = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -89,14 +97,14 @@ public class editstaff extends javax.swing.JFrame {
                 .addContainerGap(57, Short.MAX_VALUE))
         );
 
-        jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel5.setText("Full Name :");
 
         full_name.setFont(new java.awt.Font("Cambria", 0, 18)); // NOI18N
         full_name.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         full_name.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel6.setText("Username :");
 
         username.setEditable(false);
@@ -109,30 +117,43 @@ public class editstaff extends javax.swing.JFrame {
             }
         });
 
-        jLabel8.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel8.setText("Contact Number :");
 
         contact.setFont(new java.awt.Font("Cambria", 0, 14)); // NOI18N
         contact.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         contact.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jLabel9.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel9.setText("Role :");
 
         role.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         role.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jButton1.setText("EDIT");
+        jButton1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jButton1.setText("EDIT PROFILE");
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton1MouseClicked(evt);
             }
         });
 
+        jButton2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton2.setText("Back");
         jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton2MouseClicked(evt);
+            }
+        });
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/profile-removebg-previ.png"))); // NOI18N
+        jLabel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel3.setFont(new java.awt.Font("Bahnschrift", 0, 18)); // NOI18N
+        jLabel3.setText("Upload Photo");
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel3MouseClicked(evt);
             }
         });
 
@@ -142,54 +163,64 @@ public class editstaff extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(249, 249, 249)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(jLabel1))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(86, 86, 86)
+                        .addComponent(jLabel3)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel6))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel6))
-                        .addGap(61, 61, 61)
-                        .addComponent(full_name, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel9))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(full_name, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(role, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton2)))))
-                .addGap(45, 45, 45))
+                            .addComponent(role, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(259, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(40, 40, 40))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(full_name, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(27, 27, 27)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6))
+                        .addGap(28, 28, 28)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(role, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel9)))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(full_name, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addGap(28, 28, 28)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(role, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9))
-                .addGap(29, 29, 29)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addGap(0, 53, Short.MAX_VALUE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -212,54 +243,142 @@ public class editstaff extends javax.swing.JFrame {
     }//GEN-LAST:event_usernameActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-            String newFullName = full_name.getText().trim();
-            String newUsername = username.getText().trim();
-            String newContact = contact.getText().trim();
-            String newRole = role.getText().trim();
+                                   
+    String newFullName = full_name.getText().trim();
+    String newUsername = username.getText().trim();
+    String newContact = contact.getText().trim();
+    String newRole = role.getText().trim();
 
-if (newFullName.isEmpty() || newUsername.isEmpty() 
-        || newContact.isEmpty() || newRole.isEmpty()) {
+    if (newFullName.isEmpty() || newUsername.isEmpty() 
+            || newContact.isEmpty() || newRole.isEmpty()) {
 
-    JOptionPane.showMessageDialog(this, "Fields cannot be empty!");
-    return;
-}
-
-try (Connection conn = new config().connectDB();
-     PreparedStatement pst = conn.prepareStatement(
-         "UPDATE users SET full_name=?, username=?, contact=?, role=? WHERE username=?")) {
-
-    pst.setString(1, newFullName);
-    pst.setString(2, newUsername);
-    pst.setString(3, newContact);
-    pst.setString(4, newRole);
-    pst.setString(5, oldUsername); // gamitin old username sa WHERE
-
-    int updated = pst.executeUpdate();
-
-    if (updated > 0) {
-
-        JOptionPane.showMessageDialog(this, "Profile Updated Successfully!");
-
-        staffprofile profile = new staffprofile(newUsername);
-        profile.setVisible(true);
-        this.dispose();
-
-    } else {
-        JOptionPane.showMessageDialog(this, "Staff not found!");
+        JOptionPane.showMessageDialog(this, "Fields cannot be empty!");
+        return;
     }
 
-} catch (Exception e) {
-    JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
-}
+    try (Connection conn = new config().connectDB();
+         PreparedStatement pst = conn.prepareStatement(
+             "UPDATE users SET full_name=?, username=?, contact=?, role=? WHERE username=?")) {
+
+        pst.setString(1, newFullName);
+        pst.setString(2, newUsername);
+        pst.setString(3, newContact);
+        pst.setString(4, newRole);
+        pst.setString(5, oldUsername);
+
+        int updated = pst.executeUpdate();
+
+        if (updated > 0) {
+
+            // ✅ Save the uploaded profile photo if any
+            saveProfileImage(newUsername);
+
+            JOptionPane.showMessageDialog(this, "Profile Updated Successfully!");
+            staffprofile profile = new staffprofile(newUsername);
+            profile.setVisible(true);
+            this.dispose();
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Staff not found!");
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
+    }
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
-        String loggedInUsername = null;
-        staffdashboard lf = new staffdashboard(loggedInUsername);
+        staffprofile lf = new staffprofile(oldUsername);
         lf.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2MouseClicked
 
+    private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
+                                    
+    JFileChooser chooser = new JFileChooser();
+    int result = chooser.showOpenDialog(this);
+
+    if (result == JFileChooser.APPROVE_OPTION) {
+        File file = chooser.getSelectedFile();
+
+        try {
+            FileInputStream fis = new FileInputStream(file);
+
+            // Read file manually (Java 8 compatible)
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            while ((bytesRead = fis.read(buffer)) != -1) {
+             bos.write(buffer, 0, bytesRead);
+            }
+
+
+            profileImageBytes = bos.toByteArray();
+
+
+            ImageIcon icon = new ImageIcon(profileImageBytes);
+            Image img = icon.getImage().getScaledInstance(
+              jLabel1.getWidth(),
+              jLabel1.getHeight(),
+                Image.SCALE_SMOOTH
+            );
+        jLabel1.setIcon(new ImageIcon(img));
+
+            fis.close();
+            bos.close();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading image: " + e.getMessage());
+        }
+    }
+    }//GEN-LAST:event_jLabel3MouseClicked
+
+private void saveProfileImage(String username) {
+    if (profileImageBytes == null) return; // no image selected
+
+    try (Connection conn = new config().connectDB();
+         PreparedStatement pst = conn.prepareStatement(
+                 "UPDATE users SET profile_image=? WHERE username=?")) {
+
+        pst.setBytes(1, profileImageBytes); // ✅ use class-level bytes
+        pst.setString(2, username);
+        pst.executeUpdate();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error saving image: " + e.getMessage());
+    }
+}
+    
+    private void loadProfileImage(String username) {
+    try (Connection conn = new config().connectDB();
+         PreparedStatement pst = conn.prepareStatement(
+             "SELECT profile_image FROM users WHERE username=?")) {
+
+        pst.setString(1, username);
+        java.sql.ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            profileImageBytes = rs.getBytes("profile_image");
+
+            if (profileImageBytes != null) {
+                ImageIcon icon = new ImageIcon(profileImageBytes);
+                Image img = icon.getImage().getScaledInstance(
+                        jLabel1.getWidth(),
+                        jLabel1.getHeight(),
+                        Image.SCALE_SMOOTH
+                );
+                jLabel1.setIcon(new ImageIcon(img));
+            }
+        }
+
+        rs.close();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading profile image: " + e.getMessage());
+    }
+}
+    
     /**
      * @param args the command line arguments
      */
@@ -291,7 +410,9 @@ try (Connection conn = new config().connectDB();
     private javax.swing.JTextField full_name;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;

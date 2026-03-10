@@ -20,75 +20,143 @@ import staff.staffdashboard;
  * @author Administrator
  */
 public class viewtransactions extends javax.swing.JFrame {
+private int hoveredRow = -1;
 
     private String caller;
     private String loggedUser;
 
-    
-    /**
-     * Creates new form viewtransactions
-     */
      public viewtransactions(String caller, String loggedUser) {
-        this.caller = caller;
-        this.loggedUser = loggedUser;
-        initComponents();
+    this.caller = caller;
+    this.loggedUser = loggedUser;
+    initComponents();
 
-        // Set JTable with proper columns
-        jTable1.setModel(new DefaultTableModel(
-            new Object[][] {},
-            new String[] {
-                "Transaction ID", "Customer ID", "Staff/User Name",
-                "Service Name", "Total Amount", "Date Created"
+    // HEADER COLOR
+    jTable1.getTableHeader().setBackground(new java.awt.Color(0,153,153));
+    jTable1.getTableHeader().setForeground(java.awt.Color.BLACK);
+    jTable1.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+
+    // ROW HEIGHT
+    jTable1.setRowHeight(25);
+
+    // SELECTION COLOR
+    jTable1.setSelectionBackground(new java.awt.Color(153,204,255));
+    jTable1.setSelectionForeground(java.awt.Color.BLACK);
+
+    // HOVER DETECTOR
+    jTable1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+        @Override
+        public void mouseMoved(java.awt.event.MouseEvent e) {
+            int row = jTable1.rowAtPoint(e.getPoint());
+            if(row != hoveredRow){
+                hoveredRow = row;
+                jTable1.repaint();
             }
-        ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+        }
+    });
+
+    jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent e) {
+            hoveredRow = -1;
+            jTable1.repaint();
+        }
+    });
+
+    // CUSTOM RENDERER (ROW COLORS)
+    jTable1.setDefaultRenderer(Object.class,new javax.swing.table.DefaultTableCellRenderer(){
+        @Override
+        public java.awt.Component getTableCellRendererComponent(
+                javax.swing.JTable table,Object value,boolean isSelected,
+                boolean hasFocus,int row,int column){
+
+            java.awt.Component c = super.getTableCellRendererComponent(
+                    table,value,isSelected,hasFocus,row,column);
+
+            if(row == hoveredRow){
+                c.setBackground(new java.awt.Color(180,200,255)); // hover color
+            }else{
+                if(row % 2 == 0){
+                    c.setBackground(new java.awt.Color(240,248,255));
+                }else{
+                    c.setBackground(java.awt.Color.WHITE);
+                }
             }
-        });
-  
-    // 3️⃣ Load all transactions
+
+            return c;
+        }
+    });
+
+    // JTable model
+    jTable1.setModel(new DefaultTableModel(
+        new Object[][] {},
+        new String[] {
+            "Transaction ID","Customer Name","Staff Name",
+            "Service Name","Weight (kg)","Total Amount","Date Created"
+        }
+    ){
+        @Override
+        public boolean isCellEditable(int row,int column){
+            return false;
+        }
+    });
+
     loadTransactions();
 }
    
-  private void loadTransactions() {
-        Connection conn = config.connectDB();
-        if (conn == null) {
-            JOptionPane.showMessageDialog(this, "Database connection failed!");
-            return;
-        }
+private void loadTransactions() {
 
-        String sql = "SELECT l.l_id, l.c_id, COALESCE(u.username, 'Unknown') AS user_name, " +
-             "s.service_name, l.total_amount, l.date_created " +
-             "FROM laundry l " +
-             "LEFT JOIN services s ON l.s_id = s.s_id " +
-             "LEFT JOIN users u ON l.u_id = u.user_id";
-
-        try {
-            PreparedStatement pst = conn.prepareStatement(sql);
-            ResultSet rs = pst.executeQuery();
-
-            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            model.setRowCount(0);
-
-            while (rs.next()) {
-                Object[] row = new Object[] {
-                    rs.getInt("l_id"),
-                    rs.getInt("c_id"),
-                    rs.getString("user_name"),
-                    rs.getString("service_name"),
-                    rs.getDouble("total_amount"),
-                    rs.getString("date_created")
-                };
-                model.addRow(row);
-            }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading transactions: " + ex.getMessage());
-        }
+    Connection conn = config.connectDB();
+    if (conn == null) {
+        JOptionPane.showMessageDialog(this, "Database connection failed!");
+        return;
     }
-    
+
+    // SQL query: join customers, services, users to get all info
+    String sql = "SELECT l.l_id, c.full_name AS customer_name, " +
+                 "u.full_name AS staff_name, s.service_name, " +
+                 "l.weight, l.total_amount, l.date_created " +
+                 "FROM laundry l " +
+                 "LEFT JOIN customers c ON l.c_id = c.c_id " +
+                 "LEFT JOIN services s ON l.s_id = s.s_id " +
+                 "LEFT JOIN users u ON l.u_id = u.user_id " +
+                 "ORDER BY l.l_id ASC";
+
+    try {
+        PreparedStatement pst = conn.prepareStatement(sql);
+        ResultSet rs = pst.executeQuery();
+
+        // Updated DefaultTableModel with Weight column
+        DefaultTableModel model = new DefaultTableModel(
+            new String[]{
+                "Transaction ID",
+                "Customer Name",
+                "Staff Name",
+                "Service Name",
+                "Weight (kg)",
+                "Total Amount",
+                "Date Created"
+            }, 0
+        );
+
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getInt("l_id"),
+                rs.getString("customer_name"),
+                rs.getString("staff_name"),
+                rs.getString("service_name"),
+                rs.getDouble("weight"),
+                rs.getDouble("total_amount"),
+                rs.getString("date_created")
+            });
+        }
+
+        jTable1.setModel(model);
+
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error loading transactions: " + ex.getMessage());
+    }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -143,6 +211,7 @@ public class viewtransactions extends javax.swing.JFrame {
                 .addContainerGap(38, Short.MAX_VALUE))
         );
 
+        jTextField2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 jTextField2KeyTyped(evt);
@@ -150,8 +219,10 @@ public class viewtransactions extends javax.swing.JFrame {
         });
 
         jButton4.setBackground(new java.awt.Color(192, 237, 232));
+        jButton4.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton4.setText("SEARCH");
 
+        jTable1.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null, null},
@@ -165,6 +236,7 @@ public class viewtransactions extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
+        jButton5.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton5.setText("Back");
         jButton5.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -192,8 +264,8 @@ public class viewtransactions extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton5)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 809, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 809, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(23, 23, 23))
         );
         jPanel1Layout.setVerticalGroup(
@@ -205,9 +277,9 @@ public class viewtransactions extends javax.swing.JFrame {
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton4))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton5)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 18, Short.MAX_VALUE))
         );
 
@@ -221,7 +293,7 @@ public class viewtransactions extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 1, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -234,13 +306,15 @@ public class viewtransactions extends javax.swing.JFrame {
         Connection conn = config.connectDB();
         if (conn == null) return;
 
-        String sql = "SELECT l.l_id, l.c_id, u.username AS user_name, " +
-                     "s.service_name, l.total_amount, l.date_created " +
-                     "FROM laundry l " +
-                     "LEFT JOIN services s ON l.s_id = s.s_id " +
-                     "LEFT JOIN users u ON l.u_id = u.user_id " +
-                     "WHERE l.l_id LIKE ? OR l.c_id LIKE ? OR u.username LIKE ? " +
-                     "OR s.service_name LIKE ? OR l.total_amount LIKE ? OR l.date_created LIKE ?";
+        String sql = "SELECT l.l_id, c.full_name AS customer_name, " +
+             "u.full_name AS staff_name, s.service_name, " +
+             "l.weight, l.total_amount, l.date_created " +
+             "FROM laundry l " +
+             "LEFT JOIN customers c ON l.c_id = c.c_id " +
+             "LEFT JOIN services s ON l.s_id = s.s_id " +
+             "LEFT JOIN users u ON l.u_id = u.user_id " +
+             "WHERE l.l_id LIKE ? OR c.full_name LIKE ? OR u.full_name LIKE ? " +
+             "OR s.service_name LIKE ? OR l.total_amount LIKE ? OR l.date_created LIKE ?";
 
         try {
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -257,12 +331,13 @@ public class viewtransactions extends javax.swing.JFrame {
             while (rs.next()) {
                 Object[] row = new Object[] {
                     rs.getInt("l_id"),
-                    rs.getInt("c_id"),
-                    rs.getString("user_name"),
+                    rs.getString("customer_name"),
+                    rs.getString("staff_name"),
                     rs.getString("service_name"),
+                    rs.getDouble("weight"),
                     rs.getDouble("total_amount"),
                     rs.getString("date_created")
-                };
+            };
                 model.addRow(row);
             }
 

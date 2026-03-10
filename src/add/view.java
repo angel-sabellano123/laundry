@@ -9,10 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import laundry.login;
 import staff.staffdashboard;
 
 
 public class view extends javax.swing.JFrame {
+private int hoveredRow = -1;
 
     private String caller;       
     private String loggedUser;   
@@ -25,16 +27,69 @@ public view(String caller, String loggedUser) {
     initComponents();
     this.caller = caller;
     this.loggedUser = loggedUser;
+
+    // HEADER COLOR
+    jTable1.getTableHeader().setBackground(new java.awt.Color(0,153,153));
+    jTable1.getTableHeader().setForeground(java.awt.Color.BLACK);
+    jTable1.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+
+    // ROW HEIGHT
+    jTable1.setRowHeight(25);
+
+    // CLICK SELECTION COLOR
+    jTable1.setSelectionBackground(new java.awt.Color(153,204,255));
+    jTable1.setSelectionForeground(java.awt.Color.BLACK);
+
+    // HOVER EFFECT
+    jTable1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+        @Override
+        public void mouseMoved(java.awt.event.MouseEvent e) {
+            int row = jTable1.rowAtPoint(e.getPoint());
+            if(row != hoveredRow){
+                hoveredRow = row;
+                jTable1.repaint();
+            }
+        }
+    });
+
+    jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent e) {
+            hoveredRow = -1;
+            jTable1.repaint();
+        }
+    });
+
+    // CUSTOM RENDERER
+    jTable1.setDefaultRenderer(Object.class,new javax.swing.table.DefaultTableCellRenderer(){
+        @Override
+        public java.awt.Component getTableCellRendererComponent(
+                javax.swing.JTable table,Object value,boolean isSelected,
+                boolean hasFocus,int row,int column){
+
+            java.awt.Component c = super.getTableCellRendererComponent(
+                    table,value,isSelected,hasFocus,row,column);
+
+            if(row == hoveredRow){
+                c.setBackground(new java.awt.Color(180,200,255)); // hover
+            }else{
+                if(row % 2 == 0){
+                    c.setBackground(new java.awt.Color(240,248,255));
+                }else{
+                    c.setBackground(java.awt.Color.WHITE);
+                }
+            }
+
+            return c;
+        }
+    });
+
     loadCustomers();
-    
 }
 
     public view() {
-        initComponents();
-        loadCustomers();
-        
-        
-    }
+    throw new UnsupportedOperationException("Use view(String caller, String loggedUser) instead");
+}
 
     
     private void setupTableListener() {
@@ -144,7 +199,7 @@ public view(String caller, String loggedUser) {
                 .addComponent(jLabel5)
                 .addGap(203, 203, 203)
                 .addComponent(jLabel6)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(225, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -158,6 +213,8 @@ public view(String caller, String loggedUser) {
                 .addContainerGap(23, Short.MAX_VALUE))
         );
 
+        jTable1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jTable1.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
@@ -172,6 +229,7 @@ public view(String caller, String loggedUser) {
         jScrollPane1.setViewportView(jTable1);
 
         jButton2.setBackground(new java.awt.Color(192, 237, 232));
+        jButton2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton2.setText("UPDATE");
         jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -185,6 +243,7 @@ public view(String caller, String loggedUser) {
         });
 
         jButton3.setBackground(new java.awt.Color(192, 237, 232));
+        jButton3.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton3.setText("DELETE");
         jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -192,6 +251,7 @@ public view(String caller, String loggedUser) {
             }
         });
 
+        jTextField2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 jTextField2KeyTyped(evt);
@@ -199,8 +259,10 @@ public view(String caller, String loggedUser) {
         });
 
         jButton4.setBackground(new java.awt.Color(192, 237, 232));
+        jButton4.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton4.setText("SEARCH");
 
+        jButton5.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton5.setText("Back");
         jButton5.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -214,9 +276,10 @@ public view(String caller, String loggedUser) {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(28, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton5)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 810, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jButton2)
                         .addGap(29, 29, 29)
@@ -224,8 +287,7 @@ public view(String caller, String loggedUser) {
                         .addGap(26, 26, 26)
                         .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(27, 27, 27)
-                        .addComponent(jButton4))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 801, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jButton4)))
                 .addGap(21, 21, 21))
         );
         jPanel1Layout.setVerticalGroup(
@@ -238,11 +300,11 @@ public view(String caller, String loggedUser) {
                     .addComponent(jButton3)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton4))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -300,12 +362,11 @@ public view(String caller, String loggedUser) {
     }//GEN-LAST:event_jTextField2KeyTyped
 
     private void jButton5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseClicked
-        if ("admin".equals(caller)) {
-        admindashboard adminDash = new admindashboard(loggedUser);
-        adminDash.setVisible(true);
+                                       
+     if ("admin".equals(caller)) {
+        new admindashboard(loggedUser).setVisible(true);
     } else if ("staff".equals(caller)) {
-        staffdashboard staffDash = new staffdashboard(loggedUser);
-        staffDash.setVisible(true);
+        new staffdashboard(loggedUser).setVisible(true);
     }
     this.dispose();
     }//GEN-LAST:event_jButton5MouseClicked
@@ -373,7 +434,7 @@ public view(String caller, String loggedUser) {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        try {
+    try {
         for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
             if ("Nimbus".equals(info.getName())) {
                 javax.swing.UIManager.setLookAndFeel(info.getClassName());
@@ -383,15 +444,20 @@ public view(String caller, String loggedUser) {
     } catch (Exception ex) {
         ex.printStackTrace();
     }
-    //</editor-fold>
 
-    /* Launch the form via PageLauncher */
     java.awt.EventQueue.invokeLater(() -> {
-        // Use PageLauncher to enforce login check
-        blocking.PageLauncher.launch(new view());
-    });
 
+    String currentCaller = blocking.PageLauncher.getCaller();
+    String currentUser = blocking.PageLauncher.getLoggedUser();
+
+    if(currentCaller != null && currentUser != null) {
+        new view(currentCaller, currentUser).setVisible(true);
+    } else {
+        JOptionPane.showMessageDialog(null, "Please login first.");
+        new login().setVisible(true); // open login form
     }
+});
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton2;

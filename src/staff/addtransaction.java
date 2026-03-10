@@ -7,12 +7,21 @@ package staff;
 
 import add.addcustomer;
 import config.UserSession;
+import java.awt.BorderLayout;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -31,17 +40,77 @@ public class addtransaction extends javax.swing.JFrame {
     initComponents();
     loadCustomers();
     loadServices();
-    setupListeners();
+    setupListeners(); 
+    initPrintButton(); // sa constructor
 }
+
 
 public addtransaction(int customerId) {
     initComponents();
     this.customerId = customerId;
     loadCustomers();
-    loadServices();
-    setupListeners();
-}
+    loadServices(); 
+    setupListeners(); 
+    initPrintButton();
     
+   
+}
+
+private void showReceiptSimple(String receipt) {
+    // JTextArea para sa receipt
+    JTextArea textArea = new JTextArea(receipt);
+    textArea.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 12));
+    textArea.setEditable(false);
+    textArea.setBackground(null); // transparent background effect // walang box
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+
+    JScrollPane scrollPane = new JScrollPane(textArea);
+    scrollPane.setBorder(null); // walang scroll pane border
+    scrollPane.setPreferredSize(new java.awt.Dimension(400, 300));
+
+    // Print button sa panel
+    JButton printButton = new JButton("Print");
+    printButton.addActionListener(e -> {
+        try {
+            textArea.print();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Printing error: " + ex.getMessage());
+        }
+    });
+
+    JPanel panel = new JPanel(new java.awt.BorderLayout());
+    panel.add(scrollPane, java.awt.BorderLayout.CENTER);
+    panel.add(printButton, java.awt.BorderLayout.SOUTH);
+
+    // Show as a simple dialog
+    JOptionPane.showMessageDialog(this, panel, "Receipt", JOptionPane.PLAIN_MESSAGE);
+}
+
+private void printReceipt() {
+    // Build receipt
+    int customerRow = jTable3.getSelectedRow();
+    int serviceRow = jTable2.getSelectedRow();
+    if(customerRow < 0 || serviceRow < 0) return;
+
+    String customerName = jTable3.getValueAt(customerRow, 1).toString();
+    String contact = jTable3.getValueAt(customerRow, 2).toString();
+    String serviceName = jTable2.getValueAt(serviceRow, 1).toString();
+    double weight = Double.parseDouble(jTextField1.getText());
+    double price = Double.parseDouble(jTable2.getValueAt(serviceRow, 2).toString());
+    double totalAmount = Double.parseDouble(jTextField2.getText());
+
+    String receipt = "======= LAUNDRY RECEIPT =======\n";
+    receipt += "Customer: " + customerName + "\n";
+    receipt += "Contact: " + contact + "\n";
+    receipt += "Service: " + serviceName + "\n";
+    receipt += "Weight: " + weight + " kg\n";
+    receipt += "Price per kg: " + price + "\n";
+    receipt += "Total: " + totalAmount + "\n";
+    receipt += "===============================\n";
+
+    showReceiptPreview(receipt);
+}
     
     private void loadCustomers() {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db")) {
@@ -110,23 +179,42 @@ public addtransaction(int customerId) {
         });
     }
 
-    private void updateTotalAmount() {
-        int customerRow = jTable3.getSelectedRow();
-        int serviceRow = jTable2.getSelectedRow();
+private void updateTotalAmount() {
+    int customerRow = jTable3.getSelectedRow();
+    int serviceRow = jTable2.getSelectedRow();
 
-        if (customerRow >= 0 && serviceRow >= 0) {
-            try {
-                double weight = Double.parseDouble(jTable3.getValueAt(customerRow, 4).toString());
-                double price = Double.parseDouble(jTable2.getValueAt(serviceRow, 2).toString());
-                double total = weight * price;
-                jTextField2.setText(String.format("%.2f", total));
-            } catch (NumberFormatException ignored) {}
+    if (customerRow >= 0 && serviceRow >= 0) {
+        try {
+            Object weightObj = jTable3.getValueAt(customerRow, 4);
+            Object priceObj = jTable2.getValueAt(serviceRow, 2);
+
+            double weight = Double.parseDouble(weightObj.toString().trim());
+            double price = Double.parseDouble(priceObj.toString().trim());
+
+            double total = weight * price;
+            jTextField2.setText(String.format("%.2f", total));
+        } catch (NumberFormatException ex) {
+            jTextField2.setText("0.00");
         }
     }
-
+}
    
     
-   
+   private javax.swing.JButton jButtonPrint; // field
+
+private void initPrintButton() {
+    jButtonPrint = new JButton("Print Receipt");
+    jButtonPrint.addActionListener(e -> {
+        int customerRow = jTable3.getSelectedRow();
+        int serviceRow = jTable2.getSelectedRow();
+        if (customerRow >= 0 && serviceRow >= 0) {
+            printReceipt(); // call your existing method
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a customer and service.");
+        }
+    });
+    jPanel1.add(jButtonPrint);
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -136,6 +224,7 @@ public addtransaction(int customerId) {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jButton2 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -152,6 +241,8 @@ public addtransaction(int customerId) {
         jTable2 = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
+
+        jButton2.setText("jButton2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -188,19 +279,25 @@ public addtransaction(int customerId) {
                 .addContainerGap(38, Short.MAX_VALUE))
         );
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel3.setText("Customer :");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel4.setText("Services :");
 
-        jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel5.setText("Weight :");
 
-        jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel6.setText("Total Amount :");
 
-        jButton1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
+
+        jButton1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jButton1.setText("Add Transaction");
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -208,6 +305,7 @@ public addtransaction(int customerId) {
             }
         });
 
+        jButton5.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton5.setText("Back");
         jButton5.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -255,70 +353,67 @@ public addtransaction(int customerId) {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(8, 8, 8)
+                .addGap(179, 179, 179)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addGap(71, 71, 71)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(108, 108, 108))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton5)
-                        .addGap(52, 52, 52))))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(132, 132, 132)
-                        .addComponent(jLabel3))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(127, 127, 127)
-                        .addComponent(jLabel4)))
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(65, 65, 65)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(79, 79, 79)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addComponent(jButton1)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(78, 78, 78))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(52, 52, 52))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel3)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(49, 49, 49)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))))
+                .addGap(25, 25, 25)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(39, Short.MAX_VALUE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(36, 36, 36)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
                             .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton5))
+                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(20, 20, 20))))
         );
 
@@ -330,7 +425,9 @@ public addtransaction(int customerId) {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -349,7 +446,7 @@ public addtransaction(int customerId) {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-    
+                                     
     int customerRow = jTable3.getSelectedRow();
     int serviceRow = jTable2.getSelectedRow();
 
@@ -360,32 +457,122 @@ public addtransaction(int customerId) {
 
     int c_id = (int) jTable3.getValueAt(customerRow, 0);
     int s_id = (int) jTable2.getValueAt(serviceRow, 0);
+    double weight = Double.parseDouble(jTextField1.getText().trim());
     double totalAmount = Double.parseDouble(jTextField2.getText().trim());
-
-    // kunin user ID
     int u_id = UserSession.getInstance().getUserId();
 
     try (Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db")) {
-        String sql = "INSERT INTO laundry (c_id, s_id, u_id, total_amount) VALUES (?, ?, ?, ?)";
-        PreparedStatement ps = conn.prepareStatement(sql);
+
+        // 1️⃣ Save transaction sa database
+        String sql = "INSERT INTO laundry (c_id, s_id, u_id, weight, total_amount) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
         ps.setInt(1, c_id);
         ps.setInt(2, s_id);
         ps.setInt(3, u_id);
-        ps.setDouble(4, totalAmount);
+        ps.setDouble(4, weight);
+        ps.setDouble(5, totalAmount);
         ps.executeUpdate();
 
-        JOptionPane.showMessageDialog(this, "Transaction added successfully!");
+        ResultSet generatedKeys = ps.getGeneratedKeys();
+        int l_id = 0;
+        if (generatedKeys.next()) {
+            l_id = generatedKeys.getInt(1);
+        }
 
-        // balik sa staff dashboard
-        this.dispose();
-        new staffdashboard().setVisible(true);
+        // 2️⃣ Kunin customer info
+        String sqlCust = "SELECT full_name, contact_number FROM customers WHERE c_id=?";
+        PreparedStatement psCust = conn.prepareStatement(sqlCust);
+        psCust.setInt(1, c_id);
+        ResultSet rsCust = psCust.executeQuery();
+        String customerName = "", contact = "";
+        if (rsCust.next()) {
+            customerName = rsCust.getString("full_name");
+            contact = rsCust.getString("contact_number");
+        }
 
-    } catch (SQLException e) {
+        // 3️⃣ Kunin service info
+        String sqlService = "SELECT service_name, price_per_kg FROM services WHERE s_id=?";
+        PreparedStatement psService = conn.prepareStatement(sqlService);
+        psService.setInt(1, s_id);
+        ResultSet rsService = psService.executeQuery();
+        String serviceName = "";
+        double price = 0;
+        if (rsService.next()) {
+            serviceName = rsService.getString("service_name");
+            price = rsService.getDouble("price_per_kg");
+        }
+
+        // 4️⃣ Save sa receipts table
+        String sqlReceipt = "INSERT INTO receipts (l_id, printed_at) VALUES (?, datetime('now'))";
+        PreparedStatement psReceipt = conn.prepareStatement(sqlReceipt);
+        psReceipt.setInt(1, l_id);
+        psReceipt.executeUpdate();
+
+        // 5️⃣ Build receipt string
+        String receipt = "======= LAUNDRY RECEIPT =======\n";
+        receipt += "Customer: " + customerName + "\n";
+        receipt += "Contact: " + contact + "\n";
+        receipt += "Service: " + serviceName + "\n";
+        receipt += "Weight: " + weight + " kg\n";
+        receipt += "Price per kg: " + price + "\n";
+        receipt += "Total: " + totalAmount + "\n";
+        receipt += "===============================\n";
+
+        // 6️⃣ Create receipt panel
+        JTextArea textArea = new JTextArea(receipt);
+        textArea.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 12));
+        textArea.setEditable(false);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new java.awt.Dimension(400, 300));
+        scrollPane.setBorder(null);
+
+        JButton printButton = new JButton("Print");
+        printButton.addActionListener(e -> {
+            try {
+                textArea.print();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Printing error: " + ex.getMessage());
+            }
+        });
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(e -> {
+            // Close dialog and return to staff dashboard
+            Window w = SwingUtilities.getWindowAncestor(okButton);
+            if (w != null) w.dispose();
+
+            // Open staff dashboard
+            staffdashboard dashboard = new staffdashboard(UserSession.getInstance().getUsername());
+            dashboard.setVisible(true);
+            this.dispose();
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(printButton);
+        buttonPanel.add(okButton);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // 7️⃣ Centered dialog
+        JDialog dialog = new JDialog((java.awt.Frame) null, "Receipt", true);
+        dialog.getContentPane().add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null); // center sa screen
+        dialog.setVisible(true);
+
+    } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
     }
-
-
     }//GEN-LAST:event_jButton1MouseClicked
+
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -413,6 +600,7 @@ public addtransaction(int customerId) {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -429,4 +617,8 @@ public addtransaction(int customerId) {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
+
+    private void showReceiptPreview(String receipt) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

@@ -157,5 +157,29 @@ public boolean deleteRecord(String sql, int id) {
         return false;
     }
 }
-    
+
+    public boolean duplicateCheck(String username) {
+
+    boolean exists = false;
+
+    try {
+        Connection conn = connectDB();
+        String sql = "SELECT username FROM users WHERE username = ?";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setString(1, username);
+
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            exists = true;
+        }
+
+    } catch (Exception e) {
+        System.out.println("Duplicate Check Error: " + e.getMessage());
+    }
+
+    return exists;
+}
+
+   
 }
