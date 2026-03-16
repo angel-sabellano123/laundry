@@ -28,7 +28,7 @@ public class services extends javax.swing.JFrame {
 
     }
 
-    public void loadServices() {
+public void loadServices() {
 
     DefaultTableModel model = new DefaultTableModel();
     model.addColumn("Service ID");
@@ -55,7 +55,57 @@ public class services extends javax.swing.JFrame {
     } catch (SQLException ex) {
         System.out.println("Error loading services: " + ex.getMessage());
     }
+
+    // ======= Custom hover & alternating row colors =======
+    jTable1.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+        @Override
+        public java.awt.Component getTableCellRendererComponent(
+                javax.swing.JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+
+            java.awt.Component c = super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
+            if (isSelected) {
+                c.setBackground(new java.awt.Color(153, 204, 255));
+            } else if (row == hoveredRow) {
+                c.setBackground(new java.awt.Color(200, 230, 255));
+            } else {
+                if (row % 2 == 0) {
+                    c.setBackground(new java.awt.Color(220, 220, 220));
+                } else {
+                    c.setBackground(new java.awt.Color(169, 169, 169));
+                }
+            }
+
+            return c;
+        }
+    });
+
+    jTable1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+        @Override
+        public void mouseMoved(java.awt.event.MouseEvent e) {
+            int row = jTable1.rowAtPoint(e.getPoint());
+            if (row != hoveredRow) {
+                hoveredRow = row;
+                jTable1.repaint();
+            }
+        }
+    });
+
+    jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent e) {
+            hoveredRow = -1;
+            jTable1.repaint();
+        }
+    });
+
 }    
+    private int hoveredRow = -1; 
+    
+        
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -105,6 +155,7 @@ public class services extends javax.swing.JFrame {
                 .addContainerGap(38, Short.MAX_VALUE))
         );
 
+        jTable1.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},

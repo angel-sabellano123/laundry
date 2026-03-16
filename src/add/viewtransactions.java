@@ -63,29 +63,31 @@ private int hoveredRow = -1;
     });
 
     // CUSTOM RENDERER (ROW COLORS)
-    jTable1.setDefaultRenderer(Object.class,new javax.swing.table.DefaultTableCellRenderer(){
-        @Override
-        public java.awt.Component getTableCellRendererComponent(
-                javax.swing.JTable table,Object value,boolean isSelected,
-                boolean hasFocus,int row,int column){
+// CUSTOM RENDERER (Gray + Dark Gray alternating rows)
+jTable1.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+    @Override
+    public java.awt.Component getTableCellRendererComponent(
+            javax.swing.JTable table, Object value, boolean isSelected,
+            boolean hasFocus, int row, int column) {
 
-            java.awt.Component c = super.getTableCellRendererComponent(
-                    table,value,isSelected,hasFocus,row,column);
+        java.awt.Component c = super.getTableCellRendererComponent(
+                table, value, isSelected, hasFocus, row, column);
 
-            if(row == hoveredRow){
-                c.setBackground(new java.awt.Color(180,200,255)); // hover color
-            }else{
-                if(row % 2 == 0){
-                    c.setBackground(new java.awt.Color(240,248,255));
-                }else{
-                    c.setBackground(java.awt.Color.WHITE);
-                }
+        if (isSelected) {
+            c.setBackground(new java.awt.Color(153, 204, 255)); // selected row
+        } else if (row == hoveredRow) {
+            c.setBackground(new java.awt.Color(180, 200, 255)); // hover row
+        } else {
+            if (row % 2 == 0) {
+                c.setBackground(new java.awt.Color(220, 220, 220)); // light gray
+            } else {
+                c.setBackground(new java.awt.Color(169, 169, 169)); // dark gray
             }
-
-            return c;
         }
-    });
 
+        return c;
+    }
+});
     // JTable model
     jTable1.setModel(new DefaultTableModel(
         new Object[][] {},
@@ -125,7 +127,6 @@ private void loadTransactions() {
         PreparedStatement pst = conn.prepareStatement(sql);
         ResultSet rs = pst.executeQuery();
 
-        // Updated DefaultTableModel with Weight column
         DefaultTableModel model = new DefaultTableModel(
             new String[]{
                 "Transaction ID",
@@ -139,10 +140,16 @@ private void loadTransactions() {
         );
 
         while (rs.next()) {
+            // Override staff name if staff is logged in
+            String staffName = rs.getString("staff_name");
+            if ("staff".equals(caller)) {
+                staffName = loggedUser;
+            }
+
             model.addRow(new Object[]{
                 rs.getInt("l_id"),
                 rs.getString("customer_name"),
-                rs.getString("staff_name"),
+                staffName,  // show logged-in staff if caller is staff
                 rs.getString("service_name"),
                 rs.getDouble("weight"),
                 rs.getDouble("total_amount"),
@@ -301,50 +308,57 @@ private void loadTransactions() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyTyped
-      String searchText = jTextField2.getText();
+                                    
+    String searchText = jTextField2.getText();
 
-        Connection conn = config.connectDB();
-        if (conn == null) return;
+    Connection conn = config.connectDB();
+    if (conn == null) return;
 
-        String sql = "SELECT l.l_id, c.full_name AS customer_name, " +
-             "u.full_name AS staff_name, s.service_name, " +
-             "l.weight, l.total_amount, l.date_created " +
-             "FROM laundry l " +
-             "LEFT JOIN customers c ON l.c_id = c.c_id " +
-             "LEFT JOIN services s ON l.s_id = s.s_id " +
-             "LEFT JOIN users u ON l.u_id = u.user_id " +
-             "WHERE l.l_id LIKE ? OR c.full_name LIKE ? OR u.full_name LIKE ? " +
-             "OR s.service_name LIKE ? OR l.total_amount LIKE ? OR l.date_created LIKE ?";
+    String sql = "SELECT l.l_id, c.full_name AS customer_name, " +
+                 "u.full_name AS staff_name, s.service_name, " +
+                 "l.weight, l.total_amount, l.date_created " +
+                 "FROM laundry l " +
+                 "LEFT JOIN customers c ON l.c_id = c.c_id " +
+                 "LEFT JOIN services s ON l.s_id = s.s_id " +
+                 "LEFT JOIN users u ON l.u_id = u.user_id " +
+                 "WHERE l.l_id LIKE ? OR c.full_name LIKE ? OR u.full_name LIKE ? " +
+                 "OR s.service_name LIKE ? OR l.total_amount LIKE ? OR l.date_created LIKE ?";
 
-        try {
-            PreparedStatement pst = conn.prepareStatement(sql);
+    try {
+        PreparedStatement pst = conn.prepareStatement(sql);
 
-            for (int i = 1; i <= 6; i++) {
-                pst.setString(i, "%" + searchText + "%");
-            }
-
-            ResultSet rs = pst.executeQuery();
-
-            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            model.setRowCount(0);
-
-            while (rs.next()) {
-                Object[] row = new Object[] {
-                    rs.getInt("l_id"),
-                    rs.getString("customer_name"),
-                    rs.getString("staff_name"),
-                    rs.getString("service_name"),
-                    rs.getDouble("weight"),
-                    rs.getDouble("total_amount"),
-                    rs.getString("date_created")
-            };
-                model.addRow(row);
-            }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error searching transactions: " + ex.getMessage());
+        for (int i = 1; i <= 6; i++) {
+            pst.setString(i, "%" + searchText + "%");
         }
+
+        ResultSet rs = pst.executeQuery();
+
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+
+        while (rs.next()) {
+            String staffName = rs.getString("staff_name");
+            if ("staff".equals(caller)) {
+                staffName = loggedUser;
+            }
+
+            Object[] row = new Object[] {
+                rs.getInt("l_id"),
+                rs.getString("customer_name"),
+                staffName, // override with logged-in staff
+                rs.getString("service_name"),
+                rs.getDouble("weight"),
+                rs.getDouble("total_amount"),
+                rs.getString("date_created")
+            };
+            model.addRow(row);
+        }
+
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error searching transactions: " + ex.getMessage());
+    }
+
     }//GEN-LAST:event_jTextField2KeyTyped
 
     private void jButton5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseClicked

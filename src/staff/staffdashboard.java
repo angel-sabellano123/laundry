@@ -3,6 +3,7 @@ package staff;
 import add.addcustomer;
 import add.view;
 import admin.adminprofile;
+import admin.updatecustomer;
 import config.UserSession;
 import config.config;
 import java.sql.Connection;
@@ -26,10 +27,79 @@ public class staffdashboard extends javax.swing.JFrame {
         initComponents();
         this.loggedInUsername = username;
         
+        setupTableDesign();
        loadAllCustomers();
+       
+       
     }
 
+     private int hoveredRow = -1;
+     
+     private void setupTableDesign(){
 
+    // HEADER STYLE
+    jTable1.getTableHeader().setBackground(new java.awt.Color(0,153,153));
+    jTable1.getTableHeader().setForeground(java.awt.Color.BLACK);
+    jTable1.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+
+    // ROW HEIGHT
+    jTable1.setRowHeight(25);
+
+    // CLICK COLOR
+    jTable1.setSelectionBackground(new java.awt.Color(153,204,255));
+    jTable1.setSelectionForeground(java.awt.Color.BLACK);
+
+    // HOVER EFFECT
+    jTable1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter(){
+        @Override
+        public void mouseMoved(java.awt.event.MouseEvent e){
+            int row = jTable1.rowAtPoint(e.getPoint());
+            if(row != hoveredRow){
+                hoveredRow = row;
+                jTable1.repaint();
+            }
+        }
+    });
+
+    jTable1.addMouseListener(new java.awt.event.MouseAdapter(){
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent e){
+            hoveredRow = -1;
+            jTable1.repaint();
+        }
+    });
+
+    // CUSTOM RENDERER
+    jTable1.setDefaultRenderer(Object.class,new javax.swing.table.DefaultTableCellRenderer(){
+        @Override
+        public java.awt.Component getTableCellRendererComponent(
+                javax.swing.JTable table,Object value,boolean isSelected,
+                boolean hasFocus,int row,int column){
+
+            java.awt.Component c = super.getTableCellRendererComponent(
+                    table,value,isSelected,hasFocus,row,column);
+
+            if(isSelected){
+                c.setBackground(new java.awt.Color(153,204,255));
+                c.setForeground(java.awt.Color.BLACK);
+            }
+            else if(row == hoveredRow){
+                c.setBackground(new java.awt.Color(180,200,255));
+            }
+            else{
+                if(row % 2 == 0){
+                    c.setBackground(new java.awt.Color(220,220,220));
+                }else{
+                    c.setBackground(new java.awt.Color(200,200,200));
+                }
+            }
+
+            return c;
+        }
+    });
+}
+    
+    
     // 1️⃣ Method to load all customers into jTable1
     private void loadAllCustomers() {
     Connection conn = config.connectDB();
@@ -58,6 +128,8 @@ public class staffdashboard extends javax.swing.JFrame {
         ex.printStackTrace();
     }
 }
+    
+   
     
     staffdashboard() {
         this(UserSession.getInstance().getUsername());
@@ -249,6 +321,11 @@ public class staffdashboard extends javax.swing.JFrame {
         jButton2.setBackground(new java.awt.Color(192, 237, 232));
         jButton2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton2.setText("UPDATE");
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -258,6 +335,11 @@ public class staffdashboard extends javax.swing.JFrame {
         jButton3.setBackground(new java.awt.Color(192, 237, 232));
         jButton3.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jButton3.setText("DELETE");
+        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton3MouseClicked(evt);
+            }
+        });
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
@@ -284,7 +366,7 @@ public class staffdashboard extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Customer ID", "Full Name", "Address", "Laundry Weight"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -445,6 +527,67 @@ public class staffdashboard extends javax.swing.JFrame {
         lf.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jLabel8MouseClicked
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+                                     
+                                    
+    int selectedRow = jTable1.getSelectedRow();
+
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a customer to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    int customerId = (int) jTable1.getValueAt(selectedRow, 0); // ID column
+    String fullName = (String) jTable1.getValueAt(selectedRow, 1);
+    String contact = (String) jTable1.getValueAt(selectedRow, 2);
+    String address = (String) jTable1.getValueAt(selectedRow, 3);
+
+    // Pass current logged user and caller type (you can use "staff" as caller)
+    updatecustomer uc = new updatecustomer(customerId, fullName, contact, address, "staff", loggedInUsername);
+    uc.setVisible(true);
+    this.dispose();
+
+
+    }//GEN-LAST:event_jButton2MouseClicked
+
+    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
+                                   
+    int selectedRow = jTable1.getSelectedRow();
+
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a customer to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    int customerId = (int) jTable1.getValueAt(selectedRow, 0); // assuming first column is ID
+
+    int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to delete this customer?",
+            "Confirm Delete",
+            JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirm != JOptionPane.YES_OPTION) {
+        return; // user cancelled
+    }
+
+    try {
+        config cfg = new config();
+        String sql = "DELETE FROM customers WHERE c_id=?";
+        cfg.updateRecord(sql, customerId); // reuse your updateRecord method for DELETE too
+
+        JOptionPane.showMessageDialog(this, "Customer deleted successfully!");
+
+        // Refresh the table
+        loadAllCustomers();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Delete failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    }//GEN-LAST:event_jButton3MouseClicked
 
     /**
      * @param args the command line arguments

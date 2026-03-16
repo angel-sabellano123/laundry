@@ -62,27 +62,27 @@ public view(String caller, String loggedUser) {
 
     // CUSTOM RENDERER
     jTable1.setDefaultRenderer(Object.class,new javax.swing.table.DefaultTableCellRenderer(){
-        @Override
-        public java.awt.Component getTableCellRendererComponent(
-                javax.swing.JTable table,Object value,boolean isSelected,
-                boolean hasFocus,int row,int column){
+    @Override
+    public java.awt.Component getTableCellRendererComponent(
+            javax.swing.JTable table,Object value,boolean isSelected,
+            boolean hasFocus,int row,int column){
 
-            java.awt.Component c = super.getTableCellRendererComponent(
-                    table,value,isSelected,hasFocus,row,column);
+        java.awt.Component c = super.getTableCellRendererComponent(
+                table,value,isSelected,hasFocus,row,column);
 
-            if(row == hoveredRow){
-                c.setBackground(new java.awt.Color(180,200,255)); // hover
+        if(row == hoveredRow){
+            c.setBackground(new java.awt.Color(180,200,255)); // hover light blue
+        }else{
+            if(row % 2 == 0){
+                c.setBackground(new java.awt.Color(220,220,220)); // light gray
             }else{
-                if(row % 2 == 0){
-                    c.setBackground(new java.awt.Color(240,248,255));
-                }else{
-                    c.setBackground(java.awt.Color.WHITE);
-                }
+                c.setBackground(new java.awt.Color(169,169,169)); // dark gray
             }
-
-            return c;
         }
-    });
+
+        return c;
+    }
+});
 
     loadCustomers();
 }

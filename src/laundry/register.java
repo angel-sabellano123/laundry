@@ -270,6 +270,7 @@ public class register extends javax.swing.JFrame {
     String usernameText = username.getText().trim();
     String contactText = contact.getText().trim();
     String passwordText = password.getText();
+    String hashedPassword = config.hashPassword(passwordText);
     String confirmPasswordText = jPasswordField2.getText();
 
     // Check if fields are empty
@@ -320,7 +321,7 @@ try {
     pst.setString(1, fullNameText);
     pst.setString(2, usernameText);
     pst.setString(3, contactText);
-    pst.setString(4, passwordText);
+    pst.setString(4, hashedPassword);
     pst.setString(5, "staff"); // default role
 
     pst.executeUpdate();

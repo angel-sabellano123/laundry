@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import net.proteanit.sql.DbUtils;
+import java.security.MessageDigest;
 
 public class config {
 
@@ -181,5 +182,24 @@ public boolean deleteRecord(String sql, int id) {
     return exists;
 }
 
+    public static String hashPassword(String password) {
+    try {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(password.getBytes());
+
+        byte[] bytes = md.digest();
+        StringBuilder sb = new StringBuilder();
+
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+
+        return sb.toString();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+}
    
 }

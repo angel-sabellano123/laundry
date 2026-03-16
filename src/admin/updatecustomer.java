@@ -36,9 +36,8 @@ public class updatecustomer extends javax.swing.JFrame {
     address.setText(addressValue);
 }
 
-    private updatecustomer() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+  
+  
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -162,7 +161,7 @@ public class updatecustomer extends javax.swing.JFrame {
         });
 
         jLabel10.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel10.setText("Weight :");
+        jLabel10.setText("Laundry Weight :");
 
         weigth.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

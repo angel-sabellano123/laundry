@@ -37,11 +37,13 @@ public class admindashboard extends javax.swing.JFrame {
     public admindashboard() {
     initComponents();
     loadUserTable(); // auto show users
+    setupTableDesign(); 
 }
 
     public admindashboard(String username) {
     initComponents();
     this.adminUsername = username;
+    setupTableDesign();
     loadUserTable(); // auto show users
 }
 
@@ -56,6 +58,7 @@ public class admindashboard extends javax.swing.JFrame {
     }
         
    private DefaultTableModel model; // class-level
+   private int hoveredRow = -1;
 
 private void loadUserTable() {
     try {
@@ -102,6 +105,68 @@ private void loadUserTable() {
         e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
     }
+}
+
+    private void setupTableDesign(){
+
+    // HEADER STYLE
+    jTable1.getTableHeader().setBackground(new java.awt.Color(0,153,153));
+    jTable1.getTableHeader().setForeground(java.awt.Color.BLACK);
+    jTable1.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+
+    // ROW HEIGHT
+    jTable1.setRowHeight(25);
+
+    // CLICK COLOR
+    jTable1.setSelectionBackground(new java.awt.Color(153,204,255));
+    jTable1.setSelectionForeground(java.awt.Color.BLACK);
+
+    // HOVER DETECTION
+jTable1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+    @Override
+    public void mouseMoved(java.awt.event.MouseEvent e) {
+        int row = jTable1.rowAtPoint(e.getPoint());
+        if (row != hoveredRow) { // use class-level hoveredRow
+            hoveredRow = row;
+            jTable1.repaint();
+        }
+    }
+});
+
+jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseExited(java.awt.event.MouseEvent e) {
+        hoveredRow = -1; // reset hover
+        jTable1.repaint();
+    }
+});
+
+    // CUSTOM COLOR RENDERER
+    // CUSTOM RENDERER (Gray + Dark Gray alternating rows)
+jTable1.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+    @Override
+    public java.awt.Component getTableCellRendererComponent(
+            javax.swing.JTable table, Object value, boolean isSelected,
+            boolean hasFocus, int row, int column) {
+
+        java.awt.Component c = super.getTableCellRendererComponent(
+                table, value, isSelected, hasFocus, row, column);
+
+        if (isSelected) {
+            c.setBackground(new java.awt.Color(153, 204, 255)); // selected row
+        } else if (row == hoveredRow) {
+            c.setBackground(new java.awt.Color(200, 230, 255)); // hover row
+        } else {
+            if (row % 2 == 0) {
+                c.setBackground(new java.awt.Color(220, 220, 220)); // light gray
+            } else {
+                c.setBackground(new java.awt.Color(169, 169, 169)); // dark gray
+            }
+        }
+
+        return c;
+    }
+});
 }
 
 

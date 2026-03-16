@@ -205,14 +205,14 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_Username1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-                                        
-    String username = Username1.getText();
-    String password = new String(jPasswordField1.getPassword());
+                                         
+    String username = Username1.getText().trim();
+    String password = new String(jPasswordField1.getPassword()).trim();
 
-    // ✅ 1. Validate password length first
+    // ✅ Validate password length
     if (password.length() < 8) {
         JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.");
-        return; // stop login attempt
+        return;
     }
 
     Connection conn = null;
@@ -222,10 +222,13 @@ public class login extends javax.swing.JFrame {
     try {
         conn = config.connectDB();
 
+        // 🔑 Hash the password before checking it
+        String hashedPassword = config.hashPassword(password);
+
         String sql = "SELECT full_name, username, role FROM users WHERE username = ? AND password = ?";
         pst = conn.prepareStatement(sql);
         pst.setString(1, username);
-        pst.setString(2, password);
+        pst.setString(2, hashedPassword);
 
         rs = pst.executeQuery();
 
@@ -261,6 +264,7 @@ public class login extends javax.swing.JFrame {
             // ignore
         }
     }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField3MouseClicked
