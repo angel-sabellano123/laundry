@@ -54,6 +54,9 @@
               <Color blue="ff" green="cc" red="cc" type="rgb"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new BubblePanel()"/>
+          </AuxValues>
 
           <Layout>
             <DimensionLayout dim="0">

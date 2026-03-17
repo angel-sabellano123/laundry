@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import laundry.BubblePanel;
 import staff.staffdashboard;
 
 /**
@@ -38,7 +39,7 @@ public class addcustomer extends javax.swing.JFrame {
 
         jLabel6 = new javax.swing.JLabel();
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new BubblePanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();

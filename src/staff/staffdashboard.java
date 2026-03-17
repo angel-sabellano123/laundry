@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import static javafx.beans.binding.Bindings.not;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import laundry.BubblePanel;
 import laundry.login;
 import laundry.register;
 
@@ -140,7 +141,7 @@ public class staffdashboard extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel2 = new javax.swing.JPanel();
+        jPanel2 = new BubblePanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();

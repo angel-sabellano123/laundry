@@ -7,6 +7,7 @@ package add;
 
 import config.config;
 import javax.swing.JOptionPane;
+import laundry.BubblePanel;
 
 /**
  *
@@ -30,7 +31,7 @@ public class adduser extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        full_name = new javax.swing.JPanel();
+        full_name = new BubblePanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         username = new javax.swing.JTextField();

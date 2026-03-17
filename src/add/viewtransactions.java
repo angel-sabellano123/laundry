@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import laundry.BubblePanel;
 import staff.staffdashboard;
 
 /**
@@ -140,16 +141,13 @@ private void loadTransactions() {
         );
 
         while (rs.next()) {
-            // Override staff name if staff is logged in
+            // Kunin mismo sa DB ang staff full_name
             String staffName = rs.getString("staff_name");
-            if ("staff".equals(caller)) {
-                staffName = loggedUser;
-            }
 
             model.addRow(new Object[]{
                 rs.getInt("l_id"),
                 rs.getString("customer_name"),
-                staffName,  // show logged-in staff if caller is staff
+                staffName,  // full_name ng staff mula DB
                 rs.getString("service_name"),
                 rs.getDouble("weight"),
                 rs.getDouble("total_amount"),
@@ -173,7 +171,7 @@ private void loadTransactions() {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new BubblePanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();

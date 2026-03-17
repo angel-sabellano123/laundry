@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import laundry.BubblePanel;
 import staff.staffdashboard;
 import staff.staffdashboard;
 
@@ -113,28 +114,34 @@ private void printReceipt() {
 }
     
     private void loadCustomers() {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db")) {
-            String sql = "SELECT c_id, full_name, contact_number, address, weight, date_added FROM customers";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db")) {
+        String sql = "SELECT c.c_id, c.full_name, c.contact_number, c.address, c.weight, c.date_added, " +
+                     "CASE WHEN l.c_id IS NOT NULL THEN 1 ELSE 0 END AS has_transaction " +
+                     "FROM customers c " +
+                     "LEFT JOIN laundry l ON c.c_id = l.c_id";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
 
-            DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
-            model.setRowCount(0); // clear existing rows
-            while (rs.next()) {
-                Object[] row = {
-                    rs.getInt("c_id"),
-                    rs.getString("full_name"),
-                    rs.getString("contact_number"),
-                    rs.getString("address"),
-                    rs.getDouble("weight"),
-                    rs.getString("date_added")
-                };
-                model.addRow(row);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Failed to load customers: " + e.getMessage());
+        DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
+        model.setRowCount(0); // clear existing rows
+
+        while (rs.next()) {
+            Object[] row = {
+                rs.getInt("c_id"),
+                rs.getString("full_name"),
+                rs.getString("contact_number"),
+                rs.getString("address"),
+                rs.getDouble("weight"),
+                rs.getString("date_added"),
+                rs.getInt("has_transaction") // 1 = already has transaction
+            };
+            model.addRow(row);
         }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Failed to load customers: " + e.getMessage());
     }
+}
 
     private void loadServices() {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:laundry.db")) {
@@ -225,7 +232,7 @@ private void initPrintButton() {
     private void initComponents() {
 
         jButton2 = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new BubblePanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();

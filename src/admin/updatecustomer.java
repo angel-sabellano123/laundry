@@ -8,6 +8,7 @@ package admin;
 import add.view;
 import config.config;
 import javax.swing.JOptionPane;
+import laundry.BubblePanel;
 
 /**
  *
@@ -51,7 +52,7 @@ public class updatecustomer extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new BubblePanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();

@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import laundry.BubblePanel;
 import laundry.login;
 
 
@@ -130,7 +131,7 @@ public class adminprofile extends javax.swing.JFrame {
 
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        jPanel2 = new BubblePanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         full_name = new javax.swing.JTextField();
