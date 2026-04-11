@@ -348,7 +348,7 @@ jTable1.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellR
                         .addGroup(jPanel2Layout.createSequentialGroup()
                             .addGap(27, 27, 27)
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -457,7 +457,7 @@ jTable1.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellR
                         .addComponent(jButton3)
                         .addGap(18, 18, 18)
                         .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
                         .addComponent(jButton4))
                     .addComponent(jScrollPane1))
                 .addGap(23, 23, 23))
@@ -658,7 +658,7 @@ jTable1.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellR
     }//GEN-LAST:event_jLabel7MouseClicked
 
     private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
-            receipts lf = new receipts();
+            receipts lf = new receipts("admin");
             lf.setVisible(true);
             this.dispose();
     }//GEN-LAST:event_jLabel8MouseClicked

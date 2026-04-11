@@ -5,6 +5,7 @@
  */
 package admin;
 
+import config.UserSession;
 import config.config;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel;
 import laundry.BubblePanel;
+import staff.staffdashboard;
+
 
 /**
  *
@@ -22,8 +25,25 @@ private int hoveredRow = -1;
     /**
      * Creates new form receipts
      */
-    public receipts() {
+   String userRole;
+
+    public receipts(String role) {
+        
     initComponents();
+    this.userRole = role;
+    loadReceipts();
+    
+    
+      // ✅ Permission check: kung walang role, hindi ma-access ang receipts
+    if (userRole == null || userRole.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(null, 
+            "You do not have permission to access receipts!");
+        this.dispose(); // isara agad ang window
+        return;
+    } 
+    
+    
+
     
     // Table header color
     jTable1.getTableHeader().setBackground(new java.awt.Color(0, 153, 153));
@@ -85,9 +105,47 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
 });
 }
 
+    public receipts() {
+        initComponents();  // required for GUI
+    this.userRole = "staff"; // or "admin" if you want default
+    loadReceipts();    // load data into the table
+    }
+
+    public receipts(int customerId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     
+    private void loadReceiptByLaundry() {
+    DefaultTableModel model = new DefaultTableModel();
+    model.addColumn("Receipt ID");
+    model.addColumn("Laundry ID");
+    model.addColumn("Printed At");
+
+    try {
+        Connection conn = config.connectDB();
+        String sql = "SELECT * FROM receipts WHERE l_id = ?";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        int l_id = 0;
+        pst.setInt(1, l_id);
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getInt("r_id"),
+                rs.getInt("l_id"),
+                rs.getString("printed_at")
+            });
+        }
+
+        jTable1.setModel(model);
+
+    } catch (SQLException ex) {
+        System.out.println("Error loading receipt: " + ex.getMessage());
+    }
+}
     
-    public void loadReceipts() {
+   public void loadReceipts() {
 
     DefaultTableModel model = new DefaultTableModel();
     model.addColumn("Receipt ID");
@@ -95,7 +153,6 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
     model.addColumn("Printed At");
 
     try {
-
         Connection conn = config.connectDB();
         String sql = "SELECT * FROM receipts";
         PreparedStatement pst = conn.prepareStatement(sql);
@@ -134,6 +191,7 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -189,6 +247,19 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             }
         });
 
+        jButton2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jButton2.setText("Reprint");
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -196,8 +267,11 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(31, 31, 31)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 785, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 34, Short.MAX_VALUE))
         );
@@ -208,7 +282,9 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
 
@@ -230,10 +306,110 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        admindashboard lf = new admindashboard();
-        lf.setVisible(true);
-        this.dispose();
+
+    if ("admin".equalsIgnoreCase(userRole)) {
+        // Open admin dashboard
+        new admindashboard().setVisible(true);
+    } else if ("staff".equalsIgnoreCase(userRole)) {
+        // Open staff dashboard with the current logged-in username
+        String currentUsername = UserSession.getInstance().getUsername();
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(null, 
+                "Cannot load Staff Dashboard: No user logged in!");
+            return;
+        }
+        new staffdashboard(currentUsername).setVisible(true);
+    } else {
+        // Unknown role
+        javax.swing.JOptionPane.showMessageDialog(null, "Unknown user role!");
+        return;
+    }
+
+    // Close the receipts window
+    this.dispose();
+
     }//GEN-LAST:event_jButton1MouseClicked
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+                                      
+    int selectedRow = jTable1.getSelectedRow();
+
+    if (selectedRow == -1) {
+        javax.swing.JOptionPane.showMessageDialog(null, "Please select a receipt first!");
+        return;
+    }
+
+    int receiptId = Integer.parseInt(jTable1.getValueAt(selectedRow, 0).toString());
+    int laundryId = Integer.parseInt(jTable1.getValueAt(selectedRow, 1).toString());
+
+    try {
+        Connection conn = config.connectDB();
+
+        String sql = "SELECT c.full_name, c.contact_number, c.address, c.weight, l.total_amount " +
+                     "FROM laundry l " +
+                     "JOIN customers c ON l.c_id = c.c_id " +
+                     "WHERE l.l_id = ?";
+
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, laundryId);
+
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+
+            String name = rs.getString("full_name");
+            String contact = rs.getString("contact_number");
+            String address = rs.getString("address");
+            double weight = rs.getDouble("weight");
+            double total = rs.getDouble("total_amount");
+
+            String receiptText =
+                    "======= LAUNDRY RECEIPT =======\n" +
+                    "Customer: " + name + "\n" +
+                    "Contact: " + contact + "\n" +
+                    "Address: " + address + "\n" +
+                    "Weight: " + weight + " kg\n" +
+                    "Total: ₱" + total + "\n" +
+                    "===============================\n" +
+                    "Thank you!";
+
+            // ✅ PREVIEW (popup)
+            javax.swing.JTextArea textArea = new javax.swing.JTextArea(receiptText);
+            textArea.setEditable(false);
+            textArea.setFont(new java.awt.Font("Monospaced", 0, 14));
+
+            javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
+            scrollPane.setPreferredSize(new java.awt.Dimension(350, 300));
+
+            int option = javax.swing.JOptionPane.showConfirmDialog(
+                    null,
+                    scrollPane,
+                    "Receipt Preview",
+                    javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                    javax.swing.JOptionPane.PLAIN_MESSAGE
+            );
+
+            // ✅ PRINT kapag OK
+            if (option == javax.swing.JOptionPane.OK_OPTION) {
+                try {
+                    textArea.print();
+                } catch (Exception e) {
+                    javax.swing.JOptionPane.showMessageDialog(null, "Printing failed!");
+                }
+            }
+
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(null, "No data found!");
+        }
+
+    } catch (SQLException ex) {
+        System.out.println("Error reprinting receipt: " + ex.getMessage());
+    }
+    }//GEN-LAST:event_jButton2MouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -272,6 +448,7 @@ jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
